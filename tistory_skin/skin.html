@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <title>[##_page_title_##]</title>
+  <meta name="title" content="[##_page_title_##] :: [##_title_##]" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+  <link rel="alternate" type="application/rss+xml" title="[##_title_##]" href="[##_rss_url_##]" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/xeicon@2.3.3/xeicon.min.css">
+  <link rel="stylesheet" href="./style.css" />
+  <script src="//t1.daumcdn.net/tistory_admin/lib/jquery/jquery-1.12.4.min.js"></script>
+  <script src="//t1.daumcdn.net/tistory_admin/assets/skin/common/vh-check.min.js"></script>
+  <script src="./images/common.js" defer></script>
+  <script> (function () { var test = vhCheck();}()); </script>
+</head>
+
+
+<body id="[##_body_id_##]" class="[##_var_headerslogundisplay_##] [##_var_headerbannerdisplay_##] [##_var_listmore_##] [##_var_listmoremobile_##] <s_if_var_headerbannerimage>use-banner-wrp</s_if_var_headerbannerimage> <s_if_var_headersloguntitle>use-slogan-wrp</s_if_var_headersloguntitle> use-menu-[##_var_topnav_##]-wrp">
+
+  <s_t3>
+    <!-- 사이드바 서랍형일때 wrap-right / wrap-drawer -->
+    <div id="wrap" class="wrap-[##_var_sidebartype_##]">
+
+      <!-- header -->
+      <!-- ==========================================
+        ACTIVELOG 커스텀 헤더 & 카테고리 바
+      ========================================== -->
+      <header id="custom-header">
+        <!-- 상단 로고 & 검색창 영역 -->
+        <div class="header-top-wrap">
+          <div class="header-top-inner">
+            <div class="brand">
+              <h1 class="logo"><a href="[##_blog_link_##]">ACTIVELOG</a></h1>
+              <div class="tagline">러닝·자전거·캠핑·축제 일정을 한눈에 정리합니다.</div>
+            </div>
+            <div class="top-right-menu">
+              <ul class="utility-links">
+                <li><a href="/notice">소개</a></li>
+                <li><a href="/guestbook">방명록</a></li>
+              </ul>
+              <div class="search-box">
+                <s_search>
+                  <input type="text" name="[##_search_name_##]" value="[##_search_text_##]" onkeydown="if (event.keyCode == 13) { [##_search_onclick_submit_##] }" placeholder="검색어 입력">
+                  <button type="button" onclick="[##_search_onclick_submit_##]">🔍</button>
+                </s_search>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 카테고리 바 (좌측 밀착) -->
+        <nav class="category-bar">
+          <div class="category-inner">
+            <a href="[##_blog_link_##]" class="home-btn" title="홈으로">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+            </a>
+            <div class="category-list-wrap">
+              [##_category_list_##]
+            </div>
+          </div>
+        </nav>
+      </header>
+      <!-- // header -->
+
+      [##_revenue_list_upper_##]
+
+      <!-- container -->
+      <div id="container">
+
+        <main class="main">
+
+          <!-- area-main -->
+          <div class="area-main">
+
+            <!-- s_list / 카테고리, 검색 리스트 -->
+            <div class="area-common" >
+							<s_list>
+								<div class="category-banner-wrp display-none">
+									<div class="category-banner" <s_list_image>style="background-image:url('[##_list_image_##]')"</s_list_image>>
+										<div class="category-banner-inner">
+											<div class="category-description-box">
+												<strong class="category-description">[##_list_description_##]</strong>
+											</div>
+										</div>
+									</div>
+							</div>
+
+                <h2 class="title-search article-title-[##_list_style_##] title-border" list-style="[##_list_style_##]"><b class="archives">[##_list_conform_##]</b> <span>[##_list_count_##]</span></h2>
+									<s_list_rep>
+
+										<article class="article-type-common article-type-[##_list_style_##]">
+											<a href="[##_list_rep_link_##]" class="link-article"
+                        data-tiara-action-name="블로그글_클릭"
+                        data-tiara-action-kind="ClickContent"
+                        data-tiara-copy="[##_list_rep_title_text_##]"
+                        data-tiara-image="[##_list_rep_thumbnail_url_##]"
+                        data-tiara-click_url="[##_blog_link_##][##_list_rep_link_##]"
+                        data-tiara-name="[##_list_rep_title_text_##]"
+                        data-tiara-provider="[##_title_##]"
+                        data-tiara-plink="[##_list_rep_link_##]"
+                        data-tiara-id="[##_list_rep_link_##]"
+                      >
+                        <p class="thumbnail" <s_list_rep_thumbnail> has-thumbnail="1" style="background-image:url('[##_list_rep_thumbnail_raw_url_##]')" </s_list_rep_thumbnail>>
+                          <img src="[##_list_rep_thumbnail_raw_url_##]" class="img-thumbnail" role="presentation">
+                        </p>
+                      </a>
+
+									<div class="article-content">
+										<a href="[##_list_rep_link_##]" class="link-article"
+                      data-tiara-action-name="블로그글_클릭"
+                      data-tiara-action-kind="ClickContent"
+                      data-tiara-copy="[##_list_rep_title_text_##]"
+                      data-tiara-image="[##_list_rep_thumbnail_url_##]"
+                      data-tiara-click_url="[##_blog_link_##][##_list_rep_link_##]"
+                      data-tiara-name="[##_list_rep_title_text_##]"
+                      data-tiara-provider="[##_title_##]"
+                      data-tiara-plink="[##_list_rep_link_##]"
+                      data-tiara-id="[##_list_rep_link_##]"
+                    >
+											<strong class="title">[##_list_rep_title_##]</strong>
+											<p class="summary">[##_list_rep_summary_##]</p>
+										</a>
+										<div class="box-meta">
+											<a href="[##_list_rep_category_link_##]" class="link-category">[##_list_rep_category_##]</a>
+											<span class="date">[##_list_rep_regdate_##]</span>
+											<span class="reply">
+												<s_rp_count>[##_list_rep_rp_cnt_##]</s_rp_count>
+											</span>
+										</div>
+									</div>
+									</article>
+								</s_list_rep>
+
+                <s_list_empty>
+                  <div class="box-no-search type-search">
+                    <span>입력하신 단어의 철자가 정확한지 확인해 보세요.</span>
+                    <span>검색어의 단어 수를 줄이거나, 보다 일반적인 단어로 검색해 보세요.</span>
+                    <span>두 단어 이상의 키워드로 검색 하신 경우, 정확하게 띄어쓰기를 한 후 검색해 보세요.</span>
+                  </div>
+
+                  <div class="box-no-search type-tag">
+                    <span>선택하신 태그에 해당하는 글이 없습니다.</span>
+                    <span>다른 태그를 선택하시거나, 검색 기능을 활용해 보세요.</span>
+                  </div>
+
+                  <div class="box-no-search type-category">
+                    <span>선택하신 카테고리에 해당하는 글이 없습니다.</span>
+                    <span>다른 카테고리를 선택하시거나, 검색 기능을 활용해 보세요.</span>
+                  </div>
+
+                  <div class="box-no-search type-archive">
+                    <span>선택하신 기간에 등록된 글이 없습니다.</span>
+                  </div>
+
+                </s_list_empty>
+              </s_list>
+            </div>
+            <!-- // s_list / 카테고리, 검색 리스트 -->
+
+            <!-- area-view / 뷰페이지 및 기본 영역 -->
+            <div class="area-view">
+              <!-- s_article_rep -->
+              <s_article_rep>
+
+                <!-- s_permalink_article_rep / 뷰페이지 -->
+                <s_permalink_article_rep>
+                  <!-- 이미지가 없는 경우 article-header-noimg -->
+                  <div class="article-header" thumbnail="<s_article_rep_thumbnail>https://img1.daumcdn.net/thumb/R1440x0/?scode=mtistory2&fname=[##_article_rep_thumbnail_raw_url_##]</s_article_rep_thumbnail>" style="background-image:url('')">
+                    <div class="inner-header">
+                      <div class="box-meta">
+                        <p class="category">[##_article_rep_category_##]</p>
+                        <h2 class="title-article">[##_article_rep_title_##]</h2>
+                        <div class="box-info">
+                          <span class="writer">[##_article_rep_author_##]</span>
+                          <span class="date">[##_article_rep_date_##]</span>
+                          [##_s_ad_isolation_##]
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 에디터 영역 -->
+                  <div class="article-view" id="article-view">
+                    [##_article_rep_desc_##]
+                  </div>
+
+                  <!-- article-footer -->
+                  <div class="article-footer">
+
+                    <s_tag_label>
+                      <!-- article-tag -->
+                      <div class="article-tag">
+                        <h3 class="title-footer">Tag</h3>
+                        <div class="box-tag">[##_tag_label_rep_##]</div>
+                      </div>
+                      <!-- // area_tag -->
+                    </s_tag_label>
+
+                    <div class="article-page">
+                      <h3 class="title-footer">'[##_article_rep_category_##]'의 다른글</h3>
+                      <ul>
+                        <li>
+                          <s_article_prev>
+                            <a href="[##_article_prev_link_##]"><span>이전글</span><strong>[##_article_prev_title_##]</strong></a>
+                          </s_article_prev>
+                        </li>
+                        <li><span>현재글</span><strong>[##_article_rep_title_##]</strong></li>
+                        <li>
+                          <s_article_next>
+                            <a href="[##_article_next_link_##]"><span>다음글</span><strong>[##_article_next_title_##]</strong></a>
+                          </s_article_next>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <s_article_related>
+                      <!-- article-related -->
+                      <div class="article-related">
+                        <h3 class="title-footer">관련글</h3>
+                        <ul class="list-related">
+                          <s_article_related_rep>
+                            <li class="item-related">
+                              <a href="[##_article_related_rep_link_##]" class="link-related">
+                                <span class="thumnail" style="background-image:url('<s_article_related_rep_thumbnail>[##_article_related_rep_thumbnail_link_##]</s_article_related_rep_thumbnail>')"></span>
+                                <div class="box_content">
+                                  <strong>[##_article_related_rep_title_##]</strong>
+                                  <span class="date">[##_article_related_rep_date_##]</span>
+                                </div>
+                              </a>
+                            </li>
+                          </s_article_related_rep>
+                        </ul>
+                      </div>
+                      <!-- // article-related -->
+                    </s_article_related>
+
+                    <!-- article-reply -->
+                    <div class="article-reply">
+                      <div class="area-reply">
+                        <s_rp>
+                          [##_comment_group_##]
+                        </s_rp>
+                      </div>
+                    </div>
+                    <!-- // article-reply -->
+
+                  </div>
+                  <!-- // article-footer -->
+
+                </s_permalink_article_rep>
+              </s_article_rep>
+              <!-- // s_article_rep -->
+
+              <!-- s_article_protected / 개별 보호글 페이지 -->
+              <s_article_protected>
+
+                <s_permalink_article_rep>
+                  <!-- 이미지가 없는 경우 article-header-noimg -->
+                  <div class="article-header article-header-protected">
+                    <div class="inner-header">
+                      <div class="info_text">
+                        <strong class="title_post">[##_article_rep_title_##]</strong>
+                        <p class="info"><span class="date">[##_article_rep_date_##]</span>ㆍ<span>[##_article_rep_category_##]</span></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="article-view">
+                    <div class="area-protected">
+                      <p class="text-protected">보호되어 있는 글입니다. <br /> <span>내용을 보시려면 비밀번호를 입력하세요.</span></p>
+                      <form class="protected_form" onsubmit="[##_article_dissolve_##]">
+                        <div class="box-protected">
+                          <input type="password" id="[##_article_password_##]" name="[##_article_password_##]" value=""
+                          placeholder="비밀번호" />
+                          <button type="submit">확인</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </s_permalink_article_rep>
+              </s_article_protected>
+              <!-- // s_article_protected -->
+
+              <!-- s_page_rep -->
+              <s_page_rep>
+								<!-- s_permalink_article_rep / 뷰페이지 -->
+								<s_permalink_article_rep>
+									<!-- 이미지가 없는 경우 article-header-noimg -->
+									<div class="article-header" thumbnail="<s_article_rep_thumbnail>[##_article_rep_thumbnail_url_##]</s_article_rep_thumbnail>" style="background-image:url('')">
+										<div class="inner-header">
+											<div class="box-meta">
+												<p class="category">공지사항</p>
+												<h2 class="title-article">[##_article_rep_title_##]</h2>
+												<div class="box-info">
+													<span class="writer">[##_article_rep_author_##]</span>
+													<span class="date">[##_article_rep_date_##]</span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- 에디터 영역 -->
+									<div class="article-view" id="article-view">
+										[##_article_rep_desc_##]
+									</div>
+								</s_permalink_article_rep>
+
+              </s_page_rep>
+              <!-- // s_page_rep -->
+
+              <!-- s_notice_rep / 개별 공지사항 페이지 -->
+							<s_notice_rep>
+								<h2 class="notice-title title-search article-title-[##_list_style_##] display-none" list-style="[##_list_style_##]"><b class="archives">공지사항</b></h2>
+								<s_index_article_rep>
+									<article class="article-type-common article-type-[##_list_style_##]">
+											<a href="[##_notice_rep_link_##]" class="link-article"
+                        data-tiara-action-name="공지목록글_클릭"
+                        data-tiara-action-kind="ClickContent"
+                        data-tiara-copy="[##_notice_rep_title_##]"
+                        data-tiara-image="[##_notice_rep_thumbnail_url_##]"
+                        data-tiara-click_url="[##_blog_link_##][##_notice_rep_link_##]"
+                        data-tiara-name="[##_notice_rep_title_##]"
+                        data-tiara-provider="[##_title_##]"
+                        data-tiara-plink="[##_notice_rep_link_##]"
+                        data-tiara-id="[##_notice_rep_link_##]"
+                      >
+                        <p class="thumbnail notice-thumbnail" <s_notice_rep_thumbnail> has-thumbnail="1" style="background-image:url('[##_notice_rep_thumbnail_url_##]')" </s_notice_rep_thumbnail>>
+                          <img src="" class="img-thumbnail" role="presentation">
+                        </p>
+                      </a>
+										<div class="article-content">
+											<a href="[##_notice_rep_link_##]" class="link-article"
+                        data-tiara-action-name="공지목록글_클릭"
+                        data-tiara-action-kind="ClickContent"
+                        data-tiara-copy="[##_notice_rep_title_##]"
+                        data-tiara-image="[##_notice_rep_thumbnail_url_##]"
+                        data-tiara-click_url="[##_blog_link_##][##_notice_rep_link_##]"
+                        data-tiara-name="[##_notice_rep_title_##]"
+                        data-tiara-provider="[##_title_##]"
+                        data-tiara-plink="[##_notice_rep_link_##]"
+                        data-tiara-id="[##_notice_rep_link_##]"
+                      >
+												<strong class="title">[##_notice_rep_title_##]</strong>
+												<p class="summary">[##_notice_rep_summary_##]</p>
+											</a>
+											<div class="box-meta">
+												<a href="[##_notice_rep_category_link_##]" class="link-category">공지사항</a>
+												<span class="date">[##_notice_rep_simple_date_##]</span>
+											</div>
+										</div>
+									</article>
+								</s_index_article_rep>
+
+								<!-- s_permalink_article_rep / 뷰페이지 -->
+								<s_permalink_article_rep>
+									<!-- 이미지가 없는 경우 article-header-noimg -->
+									<div class="article-header" thumbnail="<s_notice_rep_thumbnail>[##_notice_rep_thumbnail_url_##]</s_notice_rep_thumbnail>" style="background-image:url('')">
+										<div class="inner-header">
+											<div class="box-meta">
+												<p class="category">공지사항</p>
+												<h2 class="title-article">[##_notice_rep_title_##]</h2>
+												<div class="box-info">
+													<span class="writer">[##_notice_rep_author_##]</span>
+													<span class="date">[##_notice_rep_date_##]</span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- 에디터 영역 -->
+									<div class="article-view" id="article-view">
+										[##_notice_rep_desc_##]
+									</div>
+								</s_permalink_article_rep>
+
+							</s_notice_rep>
+
+              <!-- // s_notice_rep -->
+
+              <!-- s_tag / 개별 태그 페이지-->
+              <s_tag>
+                <!-- area_view -->
+                <div class="area-tag">
+
+                  <h3 class="title-search">Tag</h3>
+                  <div class="box-tag">
+                    <s_tag_rep>
+                      <a href="[##_tag_link_##]" class="[##_tag_class_##]">#[##_tag_name_##]</a>
+                    </s_tag_rep>
+                  </div>
+
+                </div>
+                <!-- // area_view -->
+              </s_tag>
+              <!-- // s_tag -->
+
+              <!-- s_local / 개별 위치로그 페이지 -->
+              <s_local>
+                <div class="area-main">
+                  <section id="localog" class="box_tag_trail row nonEntry main">
+                    <h3 class="title-search">Local Log</h3>
+                    <s_local_spot_rep>
+                      <div class="spot" style="margin-left: [##_local_spot_depth_##]px">
+                        [##_local_spot_##]
+                      </div>
+                    </s_local_spot_rep>
+                    <s_local_info_rep>
+                      <div class="info" style="margin-left: [##_local_info_depth_##]px">
+                        <a href="[##_local_info_link_##]">[##_local_info_title_##]</a>
+                      </div>
+                    </s_local_info_rep>
+                  </section>
+                </div>
+              </s_local>
+              <!-- // s_local -->
+
+              <div class="article-reply">
+                <div class="area-reply">
+                  <!-- s_guest  / 개별 방명록 페이지 -->
+                  <s_guest>
+                    [##_guestbook_group_##]
+                  </s_guest>
+                </div>
+              </div>
+
+              <!-- s_paging -->
+              <s_paging>
+                <!-- area_paging -->
+                <div class="area-paging">
+                  <a [##_prev_page_##] class="link_page link_prev [##_no_more_prev_##]">
+                    <span class="xi-angle-left-min">
+                      <span class="screen_out">
+                        이전
+                      </span>
+                    </span>
+                  </a>
+                  <div class="paging_num">
+                    <s_paging_rep>
+                      <a [##_paging_rep_link_##] class="link_num">[##_paging_rep_link_num_##]</a>
+                    </s_paging_rep>
+                  </div>
+                  <a [##_next_page_##] class="link_page link_next [##_no_more_next_##]">
+                    <span class="xi-angle-right-min">
+                      <span class="screen_out">
+                        다음
+                      </span>
+                    </span>
+                  </a>
+                </div>
+                <!-- // area_paging -->
+                <!-- area-paging-more -->
+                <div class="area-paging-more">
+                    <a href="#page-more" class="paging-more">더보기</a>
+                </div>
+                <!-- // end area-paging-more -->
+              </s_paging>
+              <!-- // s_paging -->
+
+            </div>
+            <!-- area-view -->
+
+            <!-- ACTIVELOG 메인 화면 -->
+            <!-- ACTIVELOG custom homepage: cover 설정과 관계없이 index에서 렌더링 -->
+              <div class="custom-main-content">
+                <!-- 전국 행사 일정 전용 화면 -->
+                <section class="event-schedule-view" aria-labelledby="event-schedule-title">
+                  <div class="schedule-hero">
+                    <a href="[##_blog_link_##]" class="schedule-back">&larr; 메인으로</a>
+                    <p class="schedule-eyebrow">ACTIVELOG EVENT GUIDE</p>
+                    <h2 id="event-schedule-title">2026 전국 행사 일정</h2>
+                    <p>마라톤, 라이딩, 지역 축제를 날짜순으로 확인하고 상세 안내까지 바로 이동하세요.</p>
+                  </div>
+
+                  <div class="schedule-filter" role="group" aria-label="행사 분야 필터">
+                    <button type="button" class="is-active" data-schedule-filter="all">전체</button>
+                    <button type="button" data-schedule-filter="running">러닝</button>
+                    <button type="button" data-schedule-filter="cycling">자전거</button>
+                    <button type="button" data-schedule-filter="camping">캠핑·레저</button>
+                    <button type="button" data-schedule-filter="festival">축제·행사</button>
+                  </div>
+
+                  <div class="schedule-month" data-schedule-month>
+                    <div class="schedule-month-heading">
+                      <strong>09</strong>
+                      <span>2026년 9월</span>
+                    </div>
+                    <div class="schedule-list">
+                      <article class="schedule-card" data-schedule-category="camping">
+                        <div class="schedule-date"><strong>11</strong><span>금요일</span></div>
+                        <img src="https://www.camfair.kr/busanweb/camping/skin/action2_bg.jpg" alt="2026 캠페어 경남 공식 홈페이지 이미지">
+                        <div class="schedule-info">
+                          <span class="schedule-category category-camping">캠핑·레저</span>
+                          <h3>2026 캠페어 경남</h3>
+                          <p class="schedule-place">창원컨벤션센터 제2전시장 · 9월 11일–13일</p>
+                          <p>캠핑카·카라반·텐트와 차박용품을 한자리에서 비교할 수 있는 캠핑&레저차량박람회입니다.</p>
+                          <a href="/11">사전등록·관람 정보 보기 &rarr;</a>
+                        </div>
+                      </article>
+
+                      <article class="schedule-card" data-schedule-category="running">
+                        <div class="schedule-date"><strong>05</strong><span>토요일</span></div>
+                        <img src="https://www.endurohub.kr/storage/races/01KJ7WM8GJ9NKZFKT3SF5HFPG7.webp" onerror="this.onerror=null;this.src='./images/active-log-hero-running.png';" alt="철원DMZ 국제평화마라톤 공식 행사 이미지">
+                        <div class="schedule-info">
+                          <span class="schedule-category category-running">러닝</span>
+                          <h3>제23회 철원DMZ 국제평화마라톤</h3>
+                          <p class="schedule-place">강원 철원군 고석정 일원 · 오전 9시</p>
+                          <p>DMZ 코스를 달리는 국제평화마라톤입니다. 출발 시간과 참가자 준비사항을 확인하세요.</p>
+                          <a href="/7">상세 일정 보기 &rarr;</a>
+                        </div>
+                      </article>
+
+                      <article class="schedule-card" data-schedule-category="running">
+                        <div class="schedule-date"><strong>20</strong><span>일요일</span></div>
+                        <img src="./images/event-gongju-baekje-marathon-2026.png" onerror="this.onerror=null;this.src='./images/active-log-hero-running.png';" alt="공주백제마라톤 공식 포스터">
+                        <div class="schedule-info">
+                          <span class="schedule-category category-running">러닝</span>
+                          <h3>2026 공주백제마라톤</h3>
+                          <p class="schedule-place">공주시민운동장 · 오전 7시 집결</p>
+                          <p>백제의 도시 공주를 달리는 마라톤 대회입니다. 집결 및 출발 시간을 미리 확인하세요.</p>
+                          <a href="/8">상세 일정 보기 &rarr;</a>
+                        </div>
+                      </article>
+
+                      <article class="schedule-card" data-schedule-category="festival">
+                        <div class="schedule-date"><strong>24</strong><span>목요일</span></div>
+                        <img src="./images/event-andong-maskdance-festival-2026.png" onerror="this.onerror=null;this.src='./images/active-log-thumb-festival.png';" alt="안동국제탈춤페스티벌 공식 포스터">
+                        <div class="schedule-info">
+                          <span class="schedule-category category-festival">축제·행사</span>
+                          <h3>2026 안동국제탈춤페스티벌</h3>
+                          <p class="schedule-place">안동 원도심 일원 · 9월 24일–10월 4일</p>
+                          <p>세계의 탈과 춤을 만나는 대표 문화축제입니다. 개막 일정과 행사 장소를 정리했습니다.</p>
+                          <a href="/10">상세 일정 보기 &rarr;</a>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+
+                  <div class="schedule-month" data-schedule-month>
+                    <div class="schedule-month-heading">
+                      <strong>10</strong>
+                      <span>2026년 10월</span>
+                    </div>
+                    <div class="schedule-list">
+                      <article class="schedule-card" data-schedule-category="cycling">
+                        <div class="schedule-date"><strong>09</strong><span>금요일</span></div>
+                        <img src="./images/event-binggrae-granfondo-2026.png" onerror="this.onerror=null;this.src='./images/active-log-thumb-cycling.png';" alt="빙그레 그란폰도 공식 행사 이미지">
+                        <div class="schedule-info">
+                          <span class="schedule-category category-cycling">자전거</span>
+                          <h3>2026 빙그레 그란폰도</h3>
+                          <p class="schedule-place">113km·106km 코스 · 참가자 2,000명</p>
+                          <p>장거리 라이딩 대회로 코스와 참가비, 기상 악화 시 변경 일정을 함께 확인할 수 있습니다.</p>
+                          <a href="/9">상세 일정 보기 &rarr;</a>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+
+                  <p class="schedule-notice">행사 일정은 주최 측 사정에 따라 변경될 수 있으니 참가 전 공식 홈페이지를 다시 확인해 주세요.</p>
+                </section>
+
+                <div class="home-dashboard">
+                <!-- 1. 메인 히어로 배너 -->
+                <section class="hero-banner">
+                  <div class="hero-bg" style="background-image: url('https://www.endurohub.kr/storage/races/01KJ7WM8GJ9NKZFKT3SF5HFPG7.webp');"></div>
+                  <div class="hero-overlay"></div>
+                  <div class="hero-content">
+                    <span class="hero-badge">2026 하반기</span>
+                    <h2 class="hero-title">전국 대회·축제<br>일정 한눈에 보기</h2>
+                    <p class="hero-desc">공식 자료로 확인한 러닝·라이딩·지역 축제 일정을 모았습니다.</p>
+                    <a href="/?schedule=1" class="hero-btn">일정 전체 보기 &rarr;</a>
+                  </div>
+                </section>
+
+                <!-- 2. 최신 글 섹션 -->
+                <section class="section-block">
+                  <div class="section-header">
+                    <h3 class="section-title"><span class="icon">🆕</span> 새로 올라온 일정</h3>
+                    <a href="[##_blog_link_##]" class="more-link">전체 글 보기 &rsaquo;</a>
+                  </div>
+                  <div class="trending-grid" id="latest-post-grid">
+                    <p class="latest-post-empty">새로운 일정을 불러오는 중입니다.</p>
+                  </div>
+                </section>
+
+                <!-- 3. 카테고리별 복합 섹션 (러닝) -->
+                <section class="section-block">
+                  <div class="section-header">
+                    <h3 class="section-title category-green">러닝</h3>
+                    <a href="/category/러닝" class="more-link">더보기 &rsaquo;</a>
+                  </div>
+                  <div class="category-complex-grid">
+                    <div class="featured-card">
+                      <a href="/7" class="featured-image-link"><img src="https://www.endurohub.kr/storage/races/01KJ7WM8GJ9NKZFKT3SF5HFPG7.webp" alt="철원DMZ 국제평화마라톤 공식 행사 이미지"></a>
+                      <div class="featured-info">
+                        <h4><a href="/7">제23회 철원DMZ 국제평화마라톤</a></h4>
+                        <p>9월 5일 철원 고석정 일원에서 열리는 대회의 코스와 참가 정보를 확인하세요.</p>
+                        <span class="date">2026.09.05</span>
+                      </div>
+                    </div>
+                    <ul class="sub-post-list">
+                      <li>
+                        <a href="/8">2026 공주백제마라톤 일정 및 참가 정보</a>
+                        <span class="date">2026.09.20</span>
+                      </li>
+                      <li>
+                        <a href="/?schedule=1">2026 전국 러닝 대회 일정 전체 보기</a>
+                        <span class="date">일정표</span>
+                      </li>
+                      <li>
+                        <a href="/category/러닝">러닝 카테고리 글 모아보기</a>
+                        <span class="date">카테고리</span>
+                      </li>
+                    </ul>
+                  </div>
+                </section>
+
+                <!-- 4. 카테고리별 복합 섹션 (자전거) -->
+                <section class="section-block">
+                  <div class="section-header">
+                    <h3 class="section-title category-green">자전거</h3>
+                    <a href="/category/자전거" class="more-link">더보기 &rsaquo;</a>
+                  </div>
+                  <div class="category-complex-grid">
+                    <div class="featured-card">
+                      <a href="/9" class="featured-image-link"><img src="./images/event-binggrae-granfondo-2026.png" alt="2026 빙그레 그란폰도 공식 행사 이미지"></a>
+                      <div class="featured-info">
+                        <h4><a href="/9">2026 빙그레 그란폰도</a></h4>
+                        <p>113km·106km 코스와 참가비, 행사 변경 일정을 정리했습니다.</p>
+                        <span class="date">2026.10.09</span>
+                      </div>
+                    </div>
+                    <ul class="sub-post-list">
+                      <li>
+                        <a href="/?schedule=1">2026 자전거 대회 일정 전체 보기</a>
+                        <span class="date">일정표</span>
+                      </li>
+                      <li>
+                        <a href="/category/자전거">자전거 카테고리 글 모아보기</a>
+                        <span class="date">카테고리</span>
+                      </li>
+                      <li>
+                        <a href="/9">대회 상세 정보 다시 확인하기</a>
+                        <span class="date">상세</span>
+                      </li>
+                    </ul>
+                  </div>
+                </section>
+
+                <!-- 5. 카테고리별 복합 섹션 (캠핑·레저) -->
+                <section class="section-block">
+                  <div class="section-header">
+                    <h3 class="section-title category-green">캠핑·레저</h3>
+                    <a href="/category/캠핑·레저" class="more-link">더보기 &rsaquo;</a>
+                  </div>
+                  <div class="category-complex-grid">
+                    <div class="featured-card">
+                      <a href="/11" class="featured-image-link"><img src="https://www.camfair.kr/busanweb/camping/skin/action2_bg.jpg" alt="2026 캠페어 경남 공식 홈페이지 이미지"></a>
+                      <div class="featured-info">
+                        <h4><a href="/11">2026 캠페어 경남</a></h4>
+                        <p>9월 11일부터 창원에서 열리는 캠핑&레저차량박람회의 사전등록과 관람 정보를 확인하세요.</p>
+                        <span class="date">2026.09.11–09.13</span>
+                      </div>
+                    </div>
+                    <ul class="sub-post-list">
+                      <li>
+                        <a href="/11">공식 사전등록과 입장 안내</a>
+                        <span class="date">사전등록</span>
+                      </li>
+                      <li>
+                        <a href="/11">초보자를 위한 박람회 관람 순서</a>
+                        <span class="date">관람 팁</span>
+                      </li>
+                      <li>
+                        <a href="/category/캠핑·레저">캠핑·레저 글 모아보기</a>
+                        <span class="date">카테고리</span>
+                      </li>
+                    </ul>
+                  </div>
+                </section>
+
+                <!-- 6. 카테고리별 복합 섹션 (행사·이벤트) -->
+                <section class="section-block">
+                  <div class="section-header">
+                    <h3 class="section-title category-green">행사·이벤트</h3>
+                    <a href="/category/행사·이벤트" class="more-link">더보기 &rsaquo;</a>
+                  </div>
+                  <div class="category-complex-grid">
+                    <div class="featured-card">
+                      <a href="/10" class="featured-image-link"><img src="./images/event-andong-maskdance-festival-2026.png" alt="2026 안동국제탈춤페스티벌 공식 포스터"></a>
+                      <div class="featured-info">
+                        <h4><a href="/10">2026 안동국제탈춤페스티벌</a></h4>
+                        <p>9월 24일부터 10월 4일까지 열리는 축제의 장소와 주요 일정을 확인하세요.</p>
+                        <span class="date">2026.09.24–10.04</span>
+                      </div>
+                    </div>
+                    <ul class="sub-post-list">
+                      <li>
+                        <a href="/10">축제 일정·장소·개막식 안내</a>
+                        <span class="date">상세</span>
+                      </li>
+                      <li>
+                        <a href="/?schedule=1">2026 전국 행사 일정 전체 보기</a>
+                        <span class="date">일정표</span>
+                      </li>
+                      <li>
+                        <a href="/category/행사·이벤트">행사·이벤트 글 모아보기</a>
+                        <span class="date">카테고리</span>
+                      </li>
+                    </ul>
+                  </div>
+                </section>
+
+                </div>
+
+              </div>
+            <!-- // ACTIVELOG custom homepage -->
+
+          </div>
+          <!-- // area-main -->
+
+          <!-- aside -->
+          <aside class="area-aside">
+            <!-- sidebar 01 -->
+            <s_sidebar>
+
+              <s_sidebar_element>
+                <!-- 프로필 -->
+								<div class="box-profile <s_if_var_Profilebgimage>box-profile-invert</s_if_var_Profilebgimage>" style="background-image:url('<s_if_var_Profilebgimage>[##_var_Profilebgimage_##]</s_if_var_Profilebgimage>');">
+									<div class="inner-box">
+										<img src="[##_image_##]" class="img-profile" alt="프로필사진">
+										<p class="tit-g">[##_title_##]</p>
+                    <p class="text-profile">[##_desc_##]</p>
+                    <!-- 블로그 소유자 접속시 보여지는 버튼 -->
+										[##_subscription_button_##]
+                    <!-- 블로그 소유자가 아닌 경우 보여지는 버튼 그룹 -->
+                    <div class="profile-btn-group [##_role_group_##]">
+                        <button type="button" class="btn-g btn-primary btn-write">글쓰기</button> 
+                        <button type="button" class="btn-g btn-blog-manage">블로그 관리</button> 
+                    </div>
+										<div class="box-sns">
+											<s_if_var_Profilefacebooklink>
+												<a href="//[##_var_Profilefacebooklink_##]" class="link-sns link-facebook">
+													<svg xmlns="//www.w3.org/2000/svg" width="8" height="16" viewBox="0 0 8 16" class="svg">
+														<path fill="#B3B3B3" fill-rule="evenodd" d="M8 5v3H5v8H2V8H0V5h2V2a2 2 0 0 1 2-2h4v3H6a1 1 0 0 0-1 1v1h3z" />
+													</svg>
+												</a>
+											</s_if_var_Profilefacebooklink>
+											<s_if_var_Profileyoutubelink>
+												<a href="//[##_var_Profileyoutubelink_##]" class="link-sns link-youtube">
+													<svg xmlns="//www.w3.org/2000/svg" width="16" height="12" viewBox="0 0 16 12" class="svg">
+														<path fill="#B3B3B3" fill-rule="evenodd" d="M4 0h8a4 4 0 0 1 4 4v4a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm3 4l3 2-3 2V4z" />
+													</svg>
+												</a>
+											</s_if_var_Profileyoutubelink>
+											<s_if_var_Profileinstalink>
+												<a href="//[##_var_Profileinstalink_##]" class="link-sns link-insta">
+													<svg xmlns="//www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" class="svg">
+														<path fill="#B3B3B3" fill-rule="evenodd" d="M4 0h8a4 4 0 0 1 4 4v8a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V4a4 4 0 0 1 4-4zm0 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm4 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm4-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+													</svg>
+												</a>
+											</s_if_var_Profileinstalink>
+											<s_if_var_Profiletwitterlink>
+												<a href="//[##_var_Profiletwitterlink_##]" class="link-sns link-twitter">
+													<svg xmlns="//www.w3.org/2000/svg" width="16" height="13" viewBox="0 0 16 13" class="svg">
+														<path fill="#B3B3B3" fill-rule="evenodd" d="M14.476 3.059S14.825 13 5.333 13A10.044 10.044 0 0 1 0 11.471a7.423 7.423 0 0 0 3.81-1.529 3.091 3.091 0 0 1-2.286-1.529h1.524A8.616 8.616 0 0 1 0 4.588h1.524S.45 4.075.762.764a8.438 8.438 0 0 0 6.095 3.059.766.766 0 0 0 .762-.765S7.646 0 11.429 0a4.071 4.071 0 0 1 2.285.765L16 0l-1.524 1.529H16l-1.524 1.53z" />
+													</svg>
+												</a>
+											</s_if_var_Profiletwitterlink>
+										</div>
+									</div>
+								</div>
+              </s_sidebar_element>
+            </s_sidebar>
+
+            <!-- sidebar 02 -->
+            <s_sidebar>
+              <s_sidebar_element>
+                  <!-- 카테고리 메뉴 -->
+                  <div class="box-category box-category-2depth">
+                    <nav>
+                      [##_category_list_##]
+                    </nav>
+                  </div>
+              </s_sidebar_element>
+              <s_sidebar_element>
+                <!-- 태그 -->
+                <div class="box-tag">
+                  <h3 class="title-sidebar">Tag</h3>
+                  <div class="box_tag">
+                    <s_random_tags>
+                      <a href="[##_tag_link_##]" class="[##_tag_class_##]">[##_tag_name_##],</a>
+                    </s_random_tags>
+                  </div>
+                </div>
+              </s_sidebar_element>
+
+              <s_sidebar_element>
+                <!-- 최근글과 인기글-->
+                <div class="box-recent">
+                  <h3 class="title-sidebar blind">최근글과 인기글</h3>
+                  <ul class="tab-recent">
+                    <li class="tab-button recent_button on"><a class="tab-button" href="#" onclick="return false;">최근글</a></li>
+                    <li class="tab-button sidebar_button"><a class="tab-button" href="#" onclick="return false;">인기글</a></li>
+                  </ul>
+                  <ul class="list-recent">
+                    <s_rctps_rep>
+                      <li>
+                        <a href="[##_rctps_rep_link_##]" class="link-recent">
+                          <s_rctps_rep_thumbnail>
+                            <p class="thumbnail" style="background-image:url('[##_rctps_rep_thumbnail_##]')"></p>
+                          </s_rctps_rep_thumbnail>
+                          <div class="box-recent">
+                            <strong>[##_rctps_rep_title_##]</strong>
+                            <span>[##_rctps_rep_date_##]</span>
+                          </div>
+                        </a>
+                      </li>
+                    </s_rctps_rep>
+                  </ul>
+
+                  <ul class="list-recent list-tab" style="display: none">
+                    <s_rctps_popular_rep>
+                      <li>
+                        <a href="[##_rctps_rep_link_##]" class="link-recent">
+                          <s_rctps_rep_thumbnail>
+                            <p class="thumbnail" style="background-image:url('[##_rctps_rep_thumbnail_##]')"></p>
+                          </s_rctps_rep_thumbnail>
+                          <div class="box-recent">
+                            <strong>[##_rctps_rep_title_##]</strong>
+                            <span>[##_rctps_rep_date_##]</span>
+                          </div>
+                        </a>
+                      </li>
+                    </s_rctps_popular_rep>
+                  </ul>
+                </div>
+              </s_sidebar_element>
+              <!-- // 최근글과 인기글 -->
+
+              <s_sidebar_element>
+                <!-- 최근댓글 -->
+                <div class="box-reply">
+                  <h3 class="title-sidebar">최근댓글</h3>
+                  <ul class="list-sidebar">
+                    <s_rctrp_rep>
+                      <li>
+                        <a href="[##_rctrp_rep_link_##]" class="link-sidebar">
+                          <strong>[##_rctrp_rep_desc_##]</strong>
+                          <p>[##_rctrp_rep_name_##]</p>
+                        </a>
+                      </li>
+                    </s_rctrp_rep>
+                  </ul>
+                </div>
+              </s_sidebar_element>
+
+              <s_sidebar_element>
+                <!-- 공지사항 -->
+                <s_rct_notice>
+                  <div class="box-notice">
+                    <h3 class="title-sidebar">공지사항</h3>
+                    <ul class="list-sidebar">
+                      <s_rct_notice_rep>
+                        <li>
+                          <a href="[##_notice_rep_link_##]" class="link-sidebar"
+                            data-tiara-action-name="블로그공지_클릭"
+                            data-tiara-action-kind="ClickContent"
+                            data-tiara-copy="[##_notice_rep_title_##]"
+                            data-tiara-click_url="[##_blog_link_##][##_notice_rep_link_##]"
+                            data-tiara-name="[##_notice_rep_title_##]"
+                            data-tiara-provider="[##_title_##]"
+                            data-tiara-plink="[##_notice_rep_link_##]"
+                            data-tiara-id="[##_notice_rep_link_##]"
+                          >[##_notice_rep_title_##]</a>
+                        </li>
+                      </s_rct_notice_rep>
+                    </ul>
+                  </div>
+                </s_rct_notice>
+              </s_sidebar_element>
+
+              <s_sidebar_element>
+                <!-- 페이스북 트위터 플러그인 -->
+                <div class="box-plugins">
+                  <h3 class="title-sidebar blind">페이스북 트위터 플러그인</h3>
+                  <ul class="tab-sns">
+                    <li class="tab-button item-facebook on"><a class="tab-button" href="#" onclick="return false;">Facebook</a></li>
+                    <li class="tab-button item-twitter"><a class="tab-button" href="#" onclick="return false;">Twitter</a></li>
+                  </ul>
+
+                  <div class="plugin-facebook">
+                    <div id="fb-root"></div>
+                      <script>(function(d, s, id) {
+                        var js, fjs = d.getElementsByTagName(s)[0];
+                        if (d.getElementById(id)) return;
+                        js = d.createElement(s); js.id = id;
+                        js.src = '//connect.facebook.net/ko_KR/sdk.js#xfbml=1&version=v3.2&appId=360877073936113&autoLogAppEvents=1';
+                        fjs.parentNode.insertBefore(js, fjs);
+                      }(document, 'script', 'facebook-jssdk'));</script>
+                    <div class="fb-page" data-href="[##_var_facebookurl_##]" data-tabs="timeline" data-small-header="true" data-adapt-container-width="true" data-hide-cover="true" data-show-facepile="false"><blockquote cite="[##_var_facebookurl_##]" class="fb-xfbml-parse-ignore"><a href="[##_var_facebookurl_##]"></a></blockquote>
+                    </div>
+                  </div>
+
+                  <div class="plugin-twitter" style="display: none;">
+                    <a class="twitter-timeline" href="[##_var_twitterurl_##]"></a> <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                  </div>
+                </div>
+              </s_sidebar_element>
+
+              <s_sidebar_element>
+                <!-- 글 보관함 -->
+                <div class="box-archive">
+                  <h3 class="title-sidebar">Archives</h3>
+                  <ul class="list-sidebar">
+                    <s_archive_rep>
+                      <li><a href="[##_archive_rep_link_##]" class="link-sidebar">[##_archive_rep_date_##]</a></li>
+                    </s_archive_rep>
+                  </ul>
+                </div>
+              </s_sidebar_element>
+
+              <s_sidebar_element>
+                <!-- 달력 모듈-->
+                <div class="box-calendar">
+                  <h3 class="title-sidebar"><span class="blind">Calendar</span></h3>
+                  <div class="inner-calendar">[##_calendar_##]</div>
+                </div>
+              </s_sidebar_element>
+
+              <s_sidebar_element>
+                <!-- 방문자수 -->
+                <div class="box-visit">
+                  <h3 class="title-sidebar"><span class="blind">방문자수</span>Total</h3>
+                  <p class="text-total">[##_count_total_##]</p>
+                  <ul>
+                    <li class="item-visit">Today : [##_count_today_##]</li>
+                    <li class="item-visit">Yesterday : [##_count_yesterday_##]</li>
+                  </ul>
+                </div>
+              </s_sidebar_element>
+            </s_sidebar>
+
+						<!-- search-bar for MOBILE -->
+						<div class="util use-sidebar">
+							<div class="search">
+                <label for="searchInput" class="screen_out">블로그 내 검색</label>
+								<input id="searchInput" class="searchInput" type="text" name="search" value="" placeholder="검색내용을 입력하세요." onkeypress="if (event.keyCode == 13) { requestSearch('.util.use-sidebar .searchInput') }">
+							</div>
+						</div>
+
+          </aside>
+          <!-- // aside -->
+
+        </main>
+        <!-- // main -->
+      </div>
+      <!-- // container -->
+
+    [##_revenue_list_lower_##]
+
+    <!-- footer -->
+      <footer id="footer">
+
+        <div class="inner-footer">
+          <div class="box-policy">
+            <s_if_var_footerLink1Name>
+              <a href="[##_var_footerLink1Url_##]" class="link-footer">[##_var_footerLink1Name_##]</a>
+            </s_if_var_footerLink1Name>
+            <s_if_var_footerLink2Name>
+              <a href="[##_var_footerLink2Url_##]" class="link-footer">[##_var_footerLink2Name_##]</a>
+            </s_if_var_footerLink2Name>
+            <s_if_var_footerLink3Name>
+              <a href="[##_var_footerLink3Url_##]" class="link-footer">[##_var_footerLink3Name_##]</a>
+            </s_if_var_footerLink3Name>
+          </div>
+          <div>
+            <p class="text-info">[##_var_footerCopyright_##]</p>
+            <address>[##_var_footerAddress_##]</address>
+          </div>
+
+          <div class="box-site">
+            <button type="button" data-toggle="xe-dropdown" aria-expanded="false">관련사이트</button>
+            <ul>
+              <s_link_rep>
+                <li class="on"><a href="[##_link_url_##]" target="_blank">[##_link_site_##]</a></li>
+              </s_link_rep>
+            </ul>
+          </div>
+        </div>
+
+      </footer>
+      <!-- // footer -->
+
+    </div>
+    <!-- // wrap -->
+  </s_t3>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('schedule') === '1') {
+        document.body.classList.add('schedule-mode');
+        document.title = '2026 전국 행사 일정 :: ACTIVELOG';
+      }
+
+      var buttons = document.querySelectorAll('[data-schedule-filter]');
+      buttons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          var filter = button.getAttribute('data-schedule-filter');
+          buttons.forEach(function (item) { item.classList.remove('is-active'); });
+          button.classList.add('is-active');
+
+          document.querySelectorAll('[data-schedule-category]').forEach(function (card) {
+            card.hidden = filter !== 'all' && card.getAttribute('data-schedule-category') !== filter;
+          });
+          document.querySelectorAll('[data-schedule-month]').forEach(function (month) {
+            month.hidden = !month.querySelector('[data-schedule-category]:not([hidden])');
+          });
+        });
+      });
+
+      /* 기존 글의 상단 배너를 공식 행사 이미지로 교체 */
+      var postBannerImages = {
+        '/7': 'https://www.endurohub.kr/storage/races/01KJ7WM8GJ9NKZFKT3SF5HFPG7.webp',
+        '/8': 'https://tistory1.daumcdn.net/tistory/8978330/skin/images/event-gongju-baekje-marathon-2026.png',
+        '/9': 'https://tistory1.daumcdn.net/tistory/8978330/skin/images/event-binggrae-granfondo-2026.png',
+        '/10': 'https://tistory1.daumcdn.net/tistory/8978330/skin/images/event-andong-maskdance-festival-2026.png',
+        '/11': 'https://www.camfair.kr/busanweb/camping/skin/action2_bg.jpg'
+      };
+
+      function applyOfficialPostBanner() {
+        var path = window.location.pathname.replace(/\/$/, '');
+        var image = postBannerImages[path];
+        var header = document.querySelector('.article-header');
+        if (!image || !header) return;
+        header.setAttribute('thumbnail', image);
+        header.style.setProperty('background-image', 'url("' + image + '")', 'important');
+      }
+
+      function addEventNameToArticle() {
+        var article = document.querySelector('#article-view');
+        var pageTitle = document.querySelector('.title-article');
+        if (!article || !pageTitle || article.querySelector('.event-name-card')) return;
+
+        var card = document.createElement('div');
+        card.className = 'event-name-card';
+        card.innerHTML = '<span class="event-name-label">EVENT INFORMATION</span>' +
+          '<strong class="event-name-title"></strong>';
+        card.querySelector('.event-name-title').textContent = pageTitle.textContent.trim();
+
+        var firstFigure = article.querySelector('figure');
+        if (firstFigure) firstFigure.insertAdjacentElement('afterend', card);
+        else article.insertBefore(card, article.firstChild);
+      }
+
+      function revealEventNameCell() {
+        document.querySelectorAll('#article-view table tr').forEach(function (row) {
+          var cells = row.querySelectorAll('td');
+          if (cells.length > 1 && cells[0].textContent.trim() === '행사명') {
+            cells[1].style.setProperty('color', '#222', 'important');
+            cells[1].style.setProperty('background-color', '#fff', 'important');
+          }
+        });
+      }
+
+      function populateLatestPosts() {
+        var grid = document.getElementById('latest-post-grid');
+        if (!grid || grid.getAttribute('data-loaded') === '1') return;
+
+        var sourceItems = document.querySelectorAll('.area-aside .box-recent .list-recent:not(.list-tab) > li');
+        var usedLinks = {};
+        var posts = [];
+
+        function addPost(href, title, date, image) {
+          if (!href || usedLinks[href] || posts.length >= 4) return;
+          usedLinks[href] = true;
+          posts.push({ href: href, title: title || '', date: date || '', image: image || '' });
+        }
+
+        sourceItems.forEach(function (item) {
+          var link = item.querySelector('a.link-recent');
+          if (!link) return;
+          var href = link.getAttribute('href');
+
+          var title = item.querySelector('.box-recent strong');
+          var date = item.querySelector('.box-recent span');
+          var thumbnail = item.querySelector('.thumbnail');
+          var image = thumbnail ? thumbnail.style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '') : '';
+          addPost(href, title ? title.textContent.trim() : '', date ? date.textContent.trim() : '', image);
+        });
+
+        /* 사이드바 최근 글 개수가 3개일 때 실제 글 목록에서 네 번째 글을 보충 */
+        document.querySelectorAll('.area-common .article-type-common').forEach(function (item) {
+          var link = item.querySelector('a.link-article');
+          if (!link) return;
+          var title = item.querySelector('.title');
+          var date = item.querySelector('.date');
+          var thumbnail = item.querySelector('.thumbnail');
+          var image = thumbnail ? thumbnail.style.backgroundImage.replace(/^url\(["']?/, '').replace(/["']?\)$/, '') : '';
+          addPost(link.getAttribute('href'), title ? title.textContent.trim() : '', date ? date.textContent.trim() : '', image);
+        });
+
+        if (!posts.length) return;
+        grid.innerHTML = '';
+        posts.forEach(function (post) {
+          var card = document.createElement('article');
+          card.className = 'trending-card';
+
+          var thumb = document.createElement('div');
+          thumb.className = 'thumb-wrap';
+          var imageLink = document.createElement('a');
+          imageLink.href = post.href;
+          if (post.image) {
+            var img = document.createElement('img');
+            img.src = post.image;
+            img.alt = post.title;
+            imageLink.appendChild(img);
+          }
+          thumb.appendChild(imageLink);
+          var badge = document.createElement('span');
+          badge.className = 'card-badge';
+          badge.textContent = '새 일정';
+          thumb.appendChild(badge);
+
+          var heading = document.createElement('h4');
+          heading.className = 'card-title';
+          var titleLink = document.createElement('a');
+          titleLink.href = post.href;
+          titleLink.textContent = post.title;
+          heading.appendChild(titleLink);
+
+          var date = document.createElement('span');
+          date.className = 'card-date';
+          date.textContent = post.date;
+
+          card.appendChild(thumb);
+          card.appendChild(heading);
+          card.appendChild(date);
+          grid.appendChild(card);
+        });
+        grid.setAttribute('data-loaded', '1');
+      }
+
+      applyOfficialPostBanner();
+      addEventNameToArticle();
+      revealEventNameCell();
+      populateLatestPosts();
+      document.addEventListener('DOMContentLoaded', function () {
+        applyOfficialPostBanner();
+        addEventNameToArticle();
+        revealEventNameCell();
+        populateLatestPosts();
+      });
+      window.addEventListener('load', function () {
+        applyOfficialPostBanner();
+        addEventNameToArticle();
+        revealEventNameCell();
+        populateLatestPosts();
+      });
+    }());
+  </script>
+</body>
+</html>
