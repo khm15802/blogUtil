@@ -1,6 +1,6 @@
 # Active Log 프로젝트 맥락
 
-마지막 갱신: 2026-08-30
+마지막 갱신: 2026-09-02
 
 ## 목적
 
@@ -23,6 +23,9 @@ Active Log 티스토리 블로그용 콘텐츠를 작성·검토하고 게시 �
 
 - `active_log_app.py`: 데스크톱 앱 실행 진입점
 - `active-log-desktop.cmd`: Windows 데스크톱 실행 스크립트
+- `install-windows.ps1`: Windows 가상환경 및 의존성 설치
+- `install-macos.command`: macOS 가상환경 및 의존성 설치
+- `active-log-desktop.command`: macOS 데스크톱 실행 스크립트
 - `active_log/main.py`: `active-log` CLI
 - `active_log/web.py`: 관리 화면, 대기열, 작성 도구, 게시 엔드포인트
 - `active_log/service.py`: 초안 생성, 카테고리 순환, 게시 및 예약 실행 조정
@@ -50,6 +53,8 @@ Active Log 티스토리 블로그용 콘텐츠를 작성·검토하고 게시 �
 ```
 
 웹 기본 주소는 `http://127.0.0.1:8000`이며 `/queue`, `/composer`, `/health` 경로를 제공한다.
+
+macOS에서는 저장소 루트의 `install-macos.command`로 설치하고 `active-log-desktop.command`로 실행한다. 운영체제마다 가상환경과 티스토리 로그인 프로필을 별도로 생성한다. 07:20 자동 게시 예약은 현재 Windows 작업 스케줄러에서만 운영한다.
 
 ## 데이터와 게시 흐름
 

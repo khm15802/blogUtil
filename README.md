@@ -1,11 +1,17 @@
 # Active Log 티스토리 자동화
 
-## Windows 데스크톱 앱
+## Windows 및 macOS 데스크톱 앱
 
 웹 관리 화면 대신 데스크톱 콘텐츠 스튜디오를 사용할 수 있습니다.
 
 ```powershell
 .\active-log-desktop.cmd
+```
+
+macOS에서는 Finder에서 `active-log-desktop.command`를 더블클릭하거나 터미널에서 실행합니다.
+
+```bash
+./active-log-desktop.command
 ```
 
 앱에서는 공식 행사 자료로 새 글 생성, 대기 글 목록, 글 수정, PC/모바일 HTML 미리보기,
@@ -27,6 +33,14 @@
 
 ## Windows 설치
 
+Python 3.11 이상과 Google Chrome을 설치한 뒤 PowerShell에서 다음 설치 파일을 실행합니다.
+
+```powershell
+.\install-windows.ps1
+```
+
+설치가 끝나면 `active-log-desktop.cmd`를 더블클릭합니다. 수동 설치가 필요하다면 아래 명령을 사용합니다.
+
 1. Python 3.11 이상과 Google Chrome을 설치합니다.
 2. PowerShell에서 프로젝트 폴더로 이동합니다.
 3. 아래 명령을 순서대로 실행합니다.
@@ -38,6 +52,23 @@ python -m pip install -e ".[dev]"
 python -m playwright install chromium
 Copy-Item .env.example .env
 ```
+
+## macOS 설치
+
+1. Python 3.11 이상과 Google Chrome을 설치합니다.
+2. GitHub에서 받은 프로젝트 폴더를 엽니다.
+3. `install-macos.command`를 더블클릭합니다.
+4. 설치가 끝나면 `active-log-desktop.command`를 더블클릭합니다.
+
+macOS가 처음 실행을 차단하면 해당 파일을 Control-클릭하고 `열기`를 선택하세요. 터미널에서 직접 설치할 수도 있습니다.
+
+```bash
+chmod +x install-macos.command active-log-desktop.command
+./install-macos.command
+./active-log-desktop.command
+```
+
+macOS에서는 `.venv`가 새로 생성되며 Windows에서 만든 `.venv`나 `.python` 폴더를 사용하지 않습니다. 티스토리 로그인 세션도 Mac에서 다시 생성해야 합니다. 현재 매일 07:20 자동 게시 예약은 Windows 작업 스케줄러에만 구성되어 있습니다.
 
 `.env`의 `OPENAI_API_KEY`는 비워 두어도 됩니다. 데스크톱의 `새 글 작성`은 OpenAI API를 호출하지 않습니다.
 
@@ -57,6 +88,12 @@ Copy-Item .env.example .env
 
 ```powershell
 .\.venv\Scripts\active-log.exe login
+```
+
+macOS:
+
+```bash
+.venv/bin/active-log login
 ```
 
 열린 Chrome에서 로그인하고 티스토리 관리 페이지가 보이면 PowerShell로 돌아와 Enter를 누릅니다. 비밀번호는 앱이 저장하지 않으며 Chrome 전용 프로필의 로그인 세션을 사용합니다.
