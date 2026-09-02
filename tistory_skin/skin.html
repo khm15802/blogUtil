@@ -1060,10 +1060,10 @@
       function revealEventNameCell() {
         document.querySelectorAll('#article-view table tr').forEach(function (row) {
           var cells = row.querySelectorAll('td');
-          if (cells.length > 1 && cells[0].textContent.trim() === '행사명') {
-            cells[1].style.setProperty('color', '#222', 'important');
-            cells[1].style.setProperty('background-color', '#fff', 'important');
-          }
+          cells.forEach(function (cell, index) {
+            cell.style.setProperty('color', '#222', 'important');
+            if (index > 0) cell.style.setProperty('background-color', '#fff', 'important');
+          });
         });
       }
 

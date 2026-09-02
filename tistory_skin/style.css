@@ -3851,6 +3851,17 @@ html {
   background-color: #f3f6f4 !important;
 }
 
+/* 정보 표 값이 에디터 인라인 색상이나 style12 첫 행 규칙에 가려지지 않도록 고정 */
+#tt-body-page #article-view table.activelog-info-table td,
+#tt-body-page #article-view table[data-ke-style='style12'] td {
+  color: #222 !important;
+}
+
+#tt-body-page #article-view table.activelog-info-table td:not(:first-child),
+#tt-body-page #article-view table[data-ke-style='style12'] td:not(:first-child) {
+  background-color: #fff !important;
+}
+
 /* area_view - 유튜브 사이즈 제어 */
 @media screen and (max-width: 743px) {
   .article-view iframe {

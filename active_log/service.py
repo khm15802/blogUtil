@@ -1,4 +1,5 @@
 import asyncio
+import json
 import random
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -9,6 +10,7 @@ from .content_policy import ensure_non_political
 from .db import Database
 from .official_generator import CATEGORIES, SeoulFestivalCollector, download_official_poster
 from .publisher import TistoryPublisher
+from .quality import inspect_post
 
 
 class AutomationService:
@@ -43,6 +45,7 @@ class AutomationService:
     async def publish_private(self, post_id: int) -> str:
         if self.config.publish_visibility != "private":
             raise RuntimeError("1차 버전 안전장치: PUBLISH_VISIBILITY는 private이어야 합니다.")
+        post = self._validated_post(post_id)
         post = self.db.claim_post_for_publish(post_id)
         publisher = TistoryPublisher(
             self.config.blog_name, self.config.tistory_profile_dir, self.config.tistory_headless
@@ -59,6 +62,7 @@ class AutomationService:
     async def publish_public(self, post_id: int) -> str:
         if self.config.publish_visibility != "public":
             raise RuntimeError("공개 게시를 사용하려면 PUBLISH_VISIBILITY=public이어야 합니다.")
+        post = self._validated_post(post_id)
         post = self.db.claim_post_for_publish(post_id)
         publisher = TistoryPublisher(
             self.config.blog_name, self.config.tistory_profile_dir, self.config.tistory_headless
@@ -71,6 +75,18 @@ class AutomationService:
         except Exception as exc:
             self.db.update_publish_result(post_id, status="failed", error=str(exc))
             raise
+
+    def _validated_post(self, post_id: int) -> dict:
+        post = self.db.get_post(post_id)
+        if not post:
+            raise KeyError(f"게시글 {post_id}을 찾을 수 없습니다.")
+        candidate = dict(post)
+        candidate["tags"] = json.loads(post["tags_json"])
+        candidate["sources"] = json.loads(post["sources_json"])
+        errors = [issue.message for issue in inspect_post(candidate) if issue.level == "error"]
+        if errors:
+            raise RuntimeError("게시 전 필수 검사를 통과하지 못했습니다: " + " / ".join(errors))
+        return post
 
     def find_image(self, topic_key: str) -> Path | None:
         images = self.find_images(topic_key)

@@ -58,6 +58,13 @@ def test_seoul_collector_discovers_and_parses_official_event():
     assert len(posts) == 1
     assert posts[0]["topic_key"] == "seoul-festival-901"
     assert posts[0]["title"].startswith("2026 서울 생활체육축제")
+    assert "일정·시간·장소·요금" in posts[0]["title"]
+    assert "언제 어디서 열리나" in posts[0]["content_html"]
+    assert "activelog-info-table" in posts[0]["content_html"]
+    assert "color:#222" in posts[0]["content_html"]
+    assert "서울광장" in posts[0]["tags"]
+    assert any(tag.startswith("2026서울") for tag in posts[0]["tags"])
+    assert not any(tag.startswith("20262026") for tag in posts[0]["tags"])
     assert posts[0]["poster_url"].startswith("https://festival.seoul.go.kr/")
     assert "/cmmn/file/getImage.do?" in posts[0]["poster_url"]
 

@@ -217,3 +217,20 @@ def test_political_post_is_rejected_before_save():
         assert "정치 관련" in str(exc)
     else:
         raise AssertionError("정치 관련 글은 거부되어야 합니다")
+
+
+def test_publish_validation_rejects_draft_without_official_source(tmp_path: Path):
+    config = Settings(database_path=tmp_path / "validation.db", publish_visibility="public")
+    db = Database(config.database_path)
+    post = _queued_post("missing-source", "공식 출처가 없는 테스트 행사")
+    post["sources"] = []
+    post_id = db.save_post(post)
+    service = AutomationService(config, db)
+
+    try:
+        service._validated_post(post_id)
+    except RuntimeError as exc:
+        assert "공식 출처" in str(exc)
+    else:
+        raise AssertionError("공식 출처가 없는 글은 게시 전에 거부되어야 합니다")
+    assert db.get_post(post_id)["status"] == "draft"

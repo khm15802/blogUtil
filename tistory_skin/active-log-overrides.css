@@ -502,6 +502,14 @@ textarea {
   padding-right: 0;
 }
 
+#tt-body-page #article-view table[data-ke-style='style12'] td {
+  color: #222 !important;
+}
+
+#tt-body-page #article-view table[data-ke-style='style12'] td:not(:first-child) {
+  background-color: #fff !important;
+}
+
 #footer .inner-footer {
   width: min(calc(100% - 48px), var(--al-width));
   max-width: var(--al-width);

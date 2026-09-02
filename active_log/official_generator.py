@@ -89,7 +89,7 @@ class OfficialPostGenerator:
 <p>{escaped['summary']}</p>
 <p style="padding:18px;background:#f3faf5;border-left:4px solid #16a34a;"><strong>공식 안내</strong><br><a href="{escaped['official_url']}" target="_blank" rel="noopener"><strong>서울시 공식 축제 페이지에서 최신 정보 확인하기 →</strong></a></p>
 <h2>행사 핵심 정보</h2>
-<table data-ke-style="style12"><tbody>
+<table class="activelog-info-table" data-ke-style="style12" style="width:100%;border-collapse:collapse;color:#222;background:#fff"><tbody>
 <tr><td><strong>기간</strong></td><td>{escaped['start_date']} ~ {escaped['end_date']}</td></tr>
 <tr><td><strong>장소</strong></td><td>{escaped['place']}</td></tr>
 <tr><td><strong>운영 시간</strong></td><td>{escaped['time']}</td></tr>
@@ -192,16 +192,24 @@ class SeoulFestivalCollector:
         poster_url = urljoin(SEOUL_FESTIVAL_BASE_URL, parser.poster_path)
         if not poster_url.startswith(f"{SEOUL_FESTIVAL_BASE_URL}/cmmn/file/getImage.do?"):
             raise RuntimeError("공식 행사 대표 포스터 주소가 아닙니다.")
+        def field(*names: str, default: str = "") -> str:
+            return next((parser.fields[name] for name in names if parser.fields.get(name)), default)
+
         return {
             "topic_key": f"seoul-festival-{match.group(1)}",
             "category": self._category(parser.title),
             "title": parser.title,
             "start_date": dates[0],
             "end_date": dates[1],
-            "place": parser.fields.get("장소", "공식 페이지 확인"),
-            "time": parser.fields.get("시간", "프로그램별 공식 안내 확인"),
-            "fee": parser.fields.get("요금", "공식 페이지 확인"),
-            "program": "상세 프로그램과 참여 방법은 서울시 공식 축제 페이지에서 확인",
+            "place": field("장소", default="공식 페이지 확인"),
+            "time": field("시간", "운영시간", default="프로그램별 공식 안내 확인"),
+            "fee": field("요금", "이용요금", "입장료", default="공식 페이지 확인"),
+            "program": field(
+                "프로그램", "행사내용", "내용",
+                default="상세 프로그램과 참여 방법은 서울시 공식 축제 페이지에서 확인",
+            ),
+            "homepage": field("홈페이지", "누리집"),
+            "inquiry": field("문의", "문의전화", "전화번호"),
             "official_url": url,
             "poster_url": poster_url,
         }
@@ -244,32 +252,65 @@ class SeoulFestivalCollector:
     def _to_post(event: dict, checked: date) -> dict:
         title = html.escape(event["title"])
         official_url = html.escape(event["official_url"], quote=True)
-        summary = f"{event['place']}에서 열리는 {event['title']}의 공식 일정과 방문 정보를 정리했습니다."
+        start = date.fromisoformat(event["start_date"])
+        end = date.fromisoformat(event["end_date"])
+        date_label = (
+            f"{start.year}년 {start.month}월 {start.day}일"
+            if start == end
+            else f"{start.year}년 {start.month}월 {start.day}일부터 {end.month}월 {end.day}일까지"
+        )
+        summary = f"{event['title']}은(는) {date_label} {event['place']}에서 열립니다. 운영 시간, 요금과 방문 전 확인사항을 공식 자료 기준으로 정리했습니다."
         values = {key: html.escape(str(event[key])) for key in ("start_date", "end_date", "place", "time", "fee", "program")}
+        homepage = html.escape(str(event.get("homepage", "")), quote=True)
+        inquiry = html.escape(str(event.get("inquiry", "")))
+        participation_rows = []
+        if event.get("homepage"):
+            participation_rows.append(f'<li><strong>행사 홈페이지:</strong> {homepage}</li>')
+        if event.get("inquiry"):
+            participation_rows.append(f"<li><strong>문의:</strong> {inquiry}</li>")
+        participation_rows.append(f"<li><strong>관람료:</strong> {values['fee']}</li>")
+        participation_html = "".join(participation_rows)
         content = f"""
-<p>{html.escape(summary)}</p>
+<p><strong>{title}</strong> 방문을 계획한다면 날짜와 운영 시간을 먼저 확인하세요. {html.escape(summary)}</p>
 <p style="padding:18px;background:#f3faf5;border-left:4px solid #16a34a;"><strong>공식 안내</strong><br><a href="{official_url}" target="_blank" rel="noopener"><strong>서울시 공식 축제 페이지에서 최신 정보 확인하기 →</strong></a></p>
 <h2>{title} 핵심 정보</h2>
-<table data-ke-style="style12"><tbody>
+<table class="activelog-info-table" data-ke-style="style12" style="width:100%;border-collapse:collapse;color:#222;background:#fff"><tbody>
 <tr><td><strong>기간</strong></td><td>{values['start_date']} ~ {values['end_date']}</td></tr>
 <tr><td><strong>장소</strong></td><td>{values['place']}</td></tr>
 <tr><td><strong>운영 시간</strong></td><td>{values['time']}</td></tr>
 <tr><td><strong>주요 프로그램</strong></td><td>{values['program']}</td></tr>
 <tr><td><strong>관람료</strong></td><td>{values['fee']}</td></tr>
 </tbody></table>
-<h2>방문 전에 확인할 것</h2>
-<ul><li>행사 당일 운영 여부와 프로그램 시간</li><li>사전 신청 또는 유료 관람 구역 여부</li><li>대중교통과 교통 통제 안내</li><li>우천·기상 상황에 따른 변경 공지</li></ul>
+<h2>언제 어디서 열리나</h2>
+<p>행사 기간은 <strong>{values['start_date']}부터 {values['end_date']}까지</strong>이며 장소는 <strong>{values['place']}</strong>입니다. 공식 안내에 표시된 운영 시간은 <strong>{values['time']}</strong>입니다. 날짜별 프로그램이 다를 수 있으므로 방문할 날짜의 세부 시간표를 다시 확인하는 것이 좋습니다.</p>
+<h2>프로그램과 참여 정보</h2>
+<p>{values['program']}</p><ul>{participation_html}</ul>
+<h2>{values['place']} 방문 전 확인사항</h2>
+<ul><li>행사 당일 운영 여부와 회차별 시작 시간</li><li>사전 신청 또는 유료 구역 운영 여부</li><li>행사장과 가까운 대중교통 및 당일 교통 통제</li><li>우천·기상 상황에 따른 변경 또는 취소 공지</li></ul>
 <h2>참고 및 공식 안내</h2><p><a href="{official_url}" target="_blank" rel="noopener">서울시 공식 축제 안내 바로가기</a></p>
 <p><small>정보 확인일: {checked:%Y.%m.%d}. 일정과 운영 내용은 변경될 수 있으므로 방문 직전에 공식 페이지를 다시 확인하세요.</small></p>
 """.strip()
         simple_title = re.sub(r"\s+", " ", event["title"]).strip()
+        year = str(start.year)
+        seo_title = f"{simple_title} {year} 일정·시간·장소·요금"
+        if year in simple_title:
+            seo_title = f"{simple_title} 일정·시간·장소·요금"
+        place_tags = [
+            token for token in re.split(r"[\s,·/]+", str(event["place"]))
+            if 2 <= len(token) <= 12 and token not in {"서울", "일대", "등"}
+        ][:2]
+        tag_title = re.sub(rf"^{re.escape(year)}\s*", "", simple_title)
+        tags = list(dict.fromkeys([
+            simple_title, f"{year}{re.sub(r'[^0-9A-Za-z가-힣]', '', tag_title)}",
+            *place_tags, f"{year}서울행사", event["category"],
+        ]))[:8]
         return {
             "topic_key": event["topic_key"],
             "category": event["category"],
-            "title": f"{simple_title} 일정·장소·방문 안내",
+            "title": seo_title,
             "summary": summary,
             "content_html": content,
-            "tags": [simple_title, "서울축제", "서울행사", event["category"]],
+            "tags": tags,
             "sources": [{"title": "서울시 공식 축제 안내", "url": event["official_url"]}],
             "poster_url": event["poster_url"],
         }
