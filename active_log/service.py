@@ -5,9 +5,9 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from .config import Settings
+from .content_policy import ensure_non_political
 from .db import Database
-from .generator import CATEGORIES, PostGenerator
-from .local_generator import LocalPostGenerator
+from .official_generator import CATEGORIES, SeoulFestivalCollector, download_official_poster
 from .publisher import TistoryPublisher
 
 
@@ -23,13 +23,22 @@ class AutomationService:
         return CATEGORIES[index]
 
     def create_draft(self) -> int:
-        generator = PostGenerator(self.config.openai_api_key, self.config.openai_model)
-        post = generator.generate(self.next_category(), self.db.recent_topic_keys())
-        return self.db.save_post(post)
+        created = self.collect_drafts(1)
+        if not created:
+            raise RuntimeError("공식 사이트에서 새로 수집할 행사가 없습니다.")
+        return created[0]
 
-    def create_local_draft(self, region: str = "metro") -> int:
-        post = LocalPostGenerator().generate(self.next_category(), self.db.recent_topic_keys(), region)
-        return self.db.save_post(post)
+    def collect_drafts(self, count: int = 3) -> list[int]:
+        posts = SeoulFestivalCollector().collect(self.db.recent_topic_keys(), count)
+        created: list[int] = []
+        for post in posts:
+            try:
+                ensure_non_political(post)
+                download_official_poster(post, Path("active_log/assets"))
+            except Exception:
+                continue
+            created.append(self.db.save_post(post))
+        return created
 
     async def publish_private(self, post_id: int) -> str:
         if self.config.publish_visibility != "private":

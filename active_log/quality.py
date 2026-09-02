@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import urlparse
 
+from .content_policy import find_political_terms
+
 
 IMG_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
 SRC_RE = re.compile(r"\bsrc\s*=\s*['\"]([^'\"]+)['\"]", re.IGNORECASE)
@@ -27,6 +29,12 @@ def inspect_post(post: dict, project_root: Path | None = None) -> list[QualityIs
     content = str(post.get("content_html", "")).strip()
     topic_key = str(post.get("topic_key", "")).strip()
     sources = post.get("sources", [])
+
+    political_terms = find_political_terms(post)
+    if political_terms:
+        issues.append(QualityIssue(
+            "error", f"정치 관련 내용은 게시할 수 없습니다: {', '.join(political_terms)}"
+        ))
 
     if len(title) < 10:
         issues.append(QualityIssue("warning", "제목이 10자보다 짧습니다."))

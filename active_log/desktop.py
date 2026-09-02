@@ -119,6 +119,21 @@ class PublishWorker(QThread):
             self.failed.emit(str(exc))
 
 
+class GenerateWorker(QThread):
+    succeeded = Signal(int)
+    failed = Signal(str)
+
+    def __init__(self, service: AutomationService):
+        super().__init__()
+        self.service = service
+
+    def run(self) -> None:
+        try:
+            self.succeeded.emit(self.service.create_draft())
+        except Exception as exc:
+            self.failed.emit(str(exc))
+
+
 class DesktopWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -126,6 +141,7 @@ class DesktopWindow(QMainWindow):
         self.service = AutomationService(settings, self.db)
         self.current_id: int | None = None
         self.worker: PublishWorker | None = None
+        self.generation_worker: GenerateWorker | None = None
         self.login_process: QProcess | None = None
         self.dirty = False
         self.loading = False
@@ -136,7 +152,6 @@ class DesktopWindow(QMainWindow):
         self.setMinimumSize(1050, 680)
         self._build_ui()
         self.refresh_posts()
-        self._setup_generation_schedule()
 
     def _build_ui(self) -> None:
         toolbar = QToolBar("도구")
@@ -147,18 +162,13 @@ class DesktopWindow(QMainWindow):
         brand.setStyleSheet("color:white;background:#123d29;font-size:16px;font-weight:800;padding-right:10px")
         toolbar.addWidget(brand)
         toolbar.addSeparator()
-        for label, slot in (("게시글 생성", self.generate_post), ("새 글", self.new_post), ("저장", self.save_post), ("새로고침", self.refresh_posts), ("티스토리 로그인", self.login)):
+        for label, slot in (("새 글 작성", self.generate_post), ("티스토리 로그인", self.login)):
             action = QAction(label, self)
             action.triggered.connect(slot)
-            if label == "새 글":
+            if label == "새 글 작성":
                 action.setShortcut("Ctrl+N")
-            elif label == "저장":
-                action.setShortcut("Ctrl+S")
+                self.generate_action = action
             toolbar.addAction(action)
-        toolbar.addSeparator()
-        self.publish_action = QAction("승인 및 공개 게시", self)
-        self.publish_action.triggered.connect(self.publish)
-        toolbar.addAction(self.publish_action)
 
         root = QSplitter(Qt.Horizontal)
         root.setChildrenCollapsible(False)
@@ -178,15 +188,6 @@ class DesktopWindow(QMainWindow):
         self.status_filter.addItems(["전체 상태", "검토 대기", "게시 중", "공개 게시", "실패"])
         self.status_filter.currentTextChanged.connect(self.apply_filters)
         left_layout.addWidget(self.status_filter)
-        self.generation_label = QLabel("다음 자동 생성: 계산 중")
-        self.generation_label.setWordWrap(True)
-        self.generation_label.setStyleSheet("color:#52645a;font-size:12px;padding:3px 2px 6px")
-        left_layout.addWidget(self.generation_label)
-        self.generation_region = QComboBox()
-        self.generation_region.addItem("수도권 우선 생성", "metro")
-        self.generation_region.addItem("전국 주제 생성", "national")
-        self.generation_region.setToolTip("자동 생성과 게시글 생성 버튼에 적용할 지역 범위")
-        left_layout.addWidget(self.generation_region)
         self.order_filter = QComboBox()
         self.order_filter.addItem("순번순 (1 → N)", True)
         self.order_filter.addItem("최신순 (N → 1)", False)
@@ -545,51 +546,34 @@ class DesktopWindow(QMainWindow):
         except Exception as exc:
             QMessageBox.warning(self, "삭제할 수 없음", str(exc))
 
-    def _setup_generation_schedule(self) -> None:
-        self.generation_timer = QTimer(self)
-        self.generation_timer.setInterval(60_000)
-        self.generation_timer.timeout.connect(self.check_generation_schedule)
-        self.generation_timer.start()
-        if not self.db.get_state("next_generation_at"):
-            self.schedule_next_generation()
-        self.check_generation_schedule()
-
-    def schedule_next_generation(self) -> str:
-        run_at = self.service.choose_next_run()
-        self.db.set_state("next_generation_at", run_at.isoformat())
-        self.update_generation_label(run_at)
-        return run_at.isoformat()
-
-    def check_generation_schedule(self) -> None:
-        saved = self.db.get_state("next_generation_at")
-        if not saved:
-            self.schedule_next_generation()
-            return
-        run_at = datetime.fromisoformat(saved)
-        self.update_generation_label(run_at)
-        if datetime.now(run_at.tzinfo) < run_at:
-            return
-        try:
-            region = self.generation_region.currentData() or "metro"
-            post_id = self.service.create_local_draft(region)
-            self.schedule_next_generation()
-            self.refresh_posts(post_id)
-            self.statusBar().showMessage("새 검토용 게시글을 자동 생성했습니다.", 8000)
-        except Exception as exc:
-            self.schedule_next_generation()
-            self.statusBar().showMessage(f"자동 게시글 생성 실패: {exc}", 10000)
-
-    def update_generation_label(self, run_at: datetime) -> None:
-        self.generation_label.setText(f"다음 자동 생성: {run_at:%Y.%m.%d %H:%M}")
-
     def generate_post(self) -> None:
-        try:
-            region = self.generation_region.currentData() or "metro"
-            post_id = self.service.create_local_draft(region)
-            self.refresh_posts(post_id)
-            self.statusBar().showMessage("API 비용 없이 검토용 게시글을 생성했습니다.", 8000)
-        except Exception as exc:
-            QMessageBox.warning(self, "게시글 생성 실패", str(exc))
+        if self.dirty and QMessageBox.question(
+            self,
+            "저장하지 않은 변경",
+            "변경사항을 버리고 새 게시글을 자동 생성할까요?",
+        ) != QMessageBox.Yes:
+            return
+        self._start_generation()
+
+    def _start_generation(self) -> None:
+        if self.generation_worker and self.generation_worker.isRunning():
+            QMessageBox.information(self, "게시글 생성 중", "이미 새 게시글을 생성하고 있습니다.")
+            return
+        self.generation_worker = GenerateWorker(self.service)
+        self.generation_worker.succeeded.connect(self.generation_succeeded)
+        self.generation_worker.failed.connect(self.generation_failed)
+        self.generate_action.setEnabled(False)
+        self.generation_worker.start()
+        self.statusBar().showMessage("공식 행사 정보와 포스터로 새 게시글을 작성하는 중…")
+
+    def generation_succeeded(self, post_id: int) -> None:
+        self.generate_action.setEnabled(True)
+        self.refresh_posts(post_id)
+        self.statusBar().showMessage("새 게시글을 생성해 검토 대기 상태로 저장했습니다.", 8000)
+
+    def generation_failed(self, message: str) -> None:
+        self.generate_action.setEnabled(True)
+        QMessageBox.warning(self, "게시글 생성 실패", message)
 
     def schedule_preview(self) -> None:
         self.preview_timer.start()
@@ -649,21 +633,23 @@ class DesktopWindow(QMainWindow):
         self.worker = PublishWorker(self.service, self.current_id)
         self.worker.succeeded.connect(self.publish_succeeded)
         self.worker.failed.connect(self.publish_failed)
-        self.publish_action.setEnabled(False)
+        self.publish_button.setEnabled(False)
         self.worker.start()
         self.statusBar().showMessage("티스토리에 공개 게시 중…")
 
     def publish_succeeded(self, url: str) -> None:
-        self.publish_action.setEnabled(True)
         self.refresh_posts(self.current_id)
         QMessageBox.information(self, "게시 완료", f"공개 게시를 완료했습니다.\n{url}")
 
     def publish_failed(self, message: str) -> None:
-        self.publish_action.setEnabled(True)
         self.refresh_posts(self.current_id)
         QMessageBox.critical(self, "게시 실패", message)
 
     def closeEvent(self, event) -> None:
+        if self.generation_worker and self.generation_worker.isRunning():
+            QMessageBox.information(self, "게시글 생성 중", "새 게시글 생성이 끝날 때까지 기다려 주세요.")
+            event.ignore()
+            return
         if self.dirty and QMessageBox.question(
             self, "저장하지 않은 변경", "저장하지 않은 변경사항이 있습니다. 앱을 종료할까요?"
         ) != QMessageBox.Yes:

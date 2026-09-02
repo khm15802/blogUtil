@@ -34,3 +34,8 @@ def test_external_image_is_warning_and_missing_local_image_is_error(tmp_path: Pa
 def test_source_objects_from_generator_are_supported(tmp_path: Path):
     issues = inspect_post(_post(sources=[{"title": "공식", "url": "https://example.com/official"}]), tmp_path)
     assert not any(issue.level == "error" for issue in issues)
+
+
+def test_political_content_is_an_error(tmp_path: Path):
+    issues = inspect_post(_post(title="대통령 선거 관련 러닝 행사 안내"), tmp_path)
+    assert any(issue.level == "error" and "정치 관련" in issue.message for issue in issues)

@@ -8,6 +8,7 @@ from active_log.service import AutomationService
 from active_log.renderer import PostRenderer
 from active_log.sample_data import running_schedule_sample
 from active_log.image_manager import attach_tistory_tags
+from active_log.content_policy import ensure_non_political
 
 
 def _queued_post(topic_key: str, title: str) -> dict:
@@ -27,6 +28,22 @@ def test_category_rotation(tmp_path: Path):
     service = AutomationService(config, Database(config.database_path))
     assert [service.next_category() for _ in CATEGORIES] == CATEGORIES
     assert service.next_category() == CATEGORIES[0]
+
+
+def test_collect_drafts_saves_only_safe_posts(monkeypatch, tmp_path: Path):
+    config = Settings(database_path=tmp_path / "collect.db")
+    service = AutomationService(config, Database(config.database_path))
+    posts = [
+        _queued_post("safe-event", "서울 생활 체육 행사 안내"),
+        _queued_post("blocked-event", "국회의원 선거 기념 행사"),
+    ]
+    for post in posts:
+        post["poster_url"] = "https://example.com/poster.jpg"
+    monkeypatch.setattr("active_log.service.SeoulFestivalCollector.collect", lambda *_args, **_kwargs: posts)
+    monkeypatch.setattr("active_log.service.download_official_poster", lambda *_args, **_kwargs: None)
+    ids = service.collect_drafts(3)
+    assert len(ids) == 1
+    assert service.db.get_post(ids[0])["topic_key"] == "safe-event"
 
 
 def test_next_run_is_within_configured_range(tmp_path: Path):
@@ -190,3 +207,13 @@ def test_draft_can_be_deleted_but_publishing_post_cannot(tmp_path: Path):
         assert "게시 중" in str(exc)
     else:
         raise AssertionError("게시 중인 글은 삭제되지 않아야 합니다")
+
+
+def test_political_post_is_rejected_before_save():
+    post = _queued_post("political-event", "국회의원 선거 기념 행사")
+    try:
+        ensure_non_political(post)
+    except RuntimeError as exc:
+        assert "정치 관련" in str(exc)
+    else:
+        raise AssertionError("정치 관련 글은 거부되어야 합니다")
