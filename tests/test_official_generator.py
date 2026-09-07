@@ -62,6 +62,10 @@ def test_seoul_collector_discovers_and_parses_official_event():
     assert "언제 어디서 열리나" in posts[0]["content_html"]
     assert "activelog-info-table" in posts[0]["content_html"]
     assert "color:#222" in posts[0]["content_html"]
+    assert (
+        '<span style="color:#222 !important">2026-09-10 ~ 2026-09-12</span>'
+        in posts[0]["content_html"]
+    )
     assert "서울광장" in posts[0]["tags"]
     assert any(tag.startswith("2026서울") for tag in posts[0]["tags"])
     assert not any(tag.startswith("20262026") for tag in posts[0]["tags"])
@@ -73,3 +77,27 @@ def test_seoul_collector_skips_duplicate_and_finished_event():
     main = '<a href="festivalView.do?festacode=901">행사</a>'
     collector = SeoulFestivalCollector(fetch=lambda _url: main)
     assert collector.collect(["seoul-festival-901"], 3, today=date(2026, 9, 1)) == []
+
+
+def test_seoul_collector_filters_requested_category():
+    main = '<a href="festivalView.do?festacode=901">행사</a>'
+    detail = """
+    <img src="/cmmn/file/getImage.do?atchFileId=poster&thumb=Y">
+    <h2 class="title">2026 서울 시민 마라톤</h2>
+    <dl><dt>기간</dt><dd>2026-09-10 ~ 2026-09-10</dd>
+    <dt>장소</dt><dd>서울광장</dd></dl>
+    """
+    collector = SeoulFestivalCollector(fetch=lambda url: main if "festivalMain" in url else detail)
+    assert len(collector.collect([], 1, today=date(2026, 9, 1), category="러닝")) == 1
+    assert collector.collect([], 1, today=date(2026, 9, 1), category="자전거") == []
+
+
+def test_seoul_collector_uses_official_category_fallback():
+    collector = SeoulFestivalCollector(fetch=lambda _url: '<html></html>')
+    posts = collector.collect([], 1, today=date(2026, 9, 7), category="캠핑·레저")
+    assert len(posts) == 1
+    assert posts[0]["category"] == "캠핑·레저"
+    assert posts[0]["topic_key"] == "gocaf-kintex-final-2026"
+    assert posts[0]["sources"][0]["title"] == "고카프 공식 행사 안내"
+    assert "/2026-gocaf-kintex-the-final-season1/" in posts[0]["sources"][0]["url"]
+    assert posts[0]["poster_url"].endswith("x336x504px.png")

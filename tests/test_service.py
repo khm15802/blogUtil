@@ -46,6 +46,20 @@ def test_collect_drafts_saves_only_safe_posts(monkeypatch, tmp_path: Path):
     assert service.db.get_post(ids[0])["topic_key"] == "safe-event"
 
 
+def test_collect_drafts_passes_selected_category(monkeypatch, tmp_path: Path):
+    config = Settings(database_path=tmp_path / "category.db")
+    service = AutomationService(config, Database(config.database_path))
+    received = {}
+
+    def collect(_collector, _recent, _count, *, category=None):
+        received["category"] = category
+        return []
+
+    monkeypatch.setattr("active_log.service.SeoulFestivalCollector.collect", collect)
+    assert service.collect_drafts(1, category="자전거") == []
+    assert received["category"] == "자전거"
+
+
 def test_next_run_is_within_configured_range(tmp_path: Path):
     config = Settings(database_path=tmp_path / "test.db", min_interval_days=1, max_interval_days=3)
     service = AutomationService(config, Database(config.database_path))

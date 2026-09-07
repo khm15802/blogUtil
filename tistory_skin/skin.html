@@ -1002,26 +1002,206 @@
   <script>
     (function () {
       var params = new URLSearchParams(window.location.search);
-      if (params.get('schedule') === '1') {
+      var scheduleMode = params.get('schedule') === '1';
+      if (scheduleMode) {
         document.body.classList.add('schedule-mode');
         document.title = '2026 전국 행사 일정 :: ACTIVELOG';
       }
 
       var buttons = document.querySelectorAll('[data-schedule-filter]');
+      function applyScheduleFilter(filter) {
+        document.querySelectorAll('[data-schedule-category]').forEach(function (card) {
+          card.hidden = filter !== 'all' && card.getAttribute('data-schedule-category') !== filter;
+        });
+        document.querySelectorAll('[data-schedule-month]').forEach(function (month) {
+          month.hidden = !month.querySelector('[data-schedule-category]:not([hidden])');
+        });
+      }
+
       buttons.forEach(function (button) {
         button.addEventListener('click', function () {
           var filter = button.getAttribute('data-schedule-filter');
           buttons.forEach(function (item) { item.classList.remove('is-active'); });
           button.classList.add('is-active');
-
-          document.querySelectorAll('[data-schedule-category]').forEach(function (card) {
-            card.hidden = filter !== 'all' && card.getAttribute('data-schedule-category') !== filter;
-          });
-          document.querySelectorAll('[data-schedule-month]').forEach(function (month) {
-            month.hidden = !month.querySelector('[data-schedule-category]:not([hidden])');
-          });
+          applyScheduleFilter(filter);
         });
       });
+
+      function scheduleCategory(label) {
+        if (label === '러닝') return { key: 'running', name: '러닝' };
+        if (label === '자전거') return { key: 'cycling', name: '자전거' };
+        if (label === '캠핑·레저') return { key: 'camping', name: '캠핑·레저' };
+        return { key: 'festival', name: '축제·행사' };
+      }
+
+      function decodeScheduleText(value) {
+        var textarea = document.createElement('textarea');
+        textarea.innerHTML = value || '';
+        return textarea.value;
+      }
+
+      function parseScheduleDates(value) {
+        var iso = (value || '').match(/\d{4}-\d{2}-\d{2}/g);
+        if (iso && iso.length >= 2) return [iso[0], iso[1]];
+        var korean = (value || '').match(/(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일\s*[~–-]\s*(?:(\d{4})년\s*)?(\d{1,2})월\s*(\d{1,2})일/);
+        if (!korean) return null;
+        var start = korean[1] + '-' + korean[2].padStart(2, '0') + '-' + korean[3].padStart(2, '0');
+        var end = (korean[4] || korean[1]) + '-' + korean[5].padStart(2, '0') + '-' + korean[6].padStart(2, '0');
+        return [start, end];
+      }
+
+      function scheduleMonth(year, month) {
+        var key = year + '-' + month;
+        var existing = document.querySelector('[data-schedule-month-key="' + key + '"]');
+        if (existing) return existing;
+
+        document.querySelectorAll('[data-schedule-month]').forEach(function (item) {
+          if (item.hasAttribute('data-schedule-month-key')) return;
+          var heading = item.querySelector('.schedule-month-heading span');
+          var match = heading && heading.textContent.match(/(\d{4})년\s*(\d{1,2})월/);
+          if (match) item.setAttribute('data-schedule-month-key', match[1] + '-' + match[2].padStart(2, '0'));
+        });
+        existing = document.querySelector('[data-schedule-month-key="' + key + '"]');
+        if (existing) return existing;
+
+        var section = document.createElement('div');
+        section.className = 'schedule-month';
+        section.setAttribute('data-schedule-month', '');
+        section.setAttribute('data-schedule-month-key', key);
+        var heading = document.createElement('div');
+        heading.className = 'schedule-month-heading';
+        var strong = document.createElement('strong');
+        strong.textContent = month;
+        var span = document.createElement('span');
+        span.textContent = year + '년 ' + Number(month) + '월';
+        heading.appendChild(strong);
+        heading.appendChild(span);
+        var list = document.createElement('div');
+        list.className = 'schedule-list';
+        section.appendChild(heading);
+        section.appendChild(list);
+        document.querySelector('.schedule-notice').before(section);
+        return section;
+      }
+
+      function appendScheduleCard(event) {
+        var samePost = Array.from(document.querySelectorAll('.schedule-card a[href]')).find(function (link) {
+          return new URL(link.href, window.location.origin).pathname === event.path;
+        });
+        if (samePost) {
+          samePost.closest('.schedule-card').setAttribute('data-schedule-date', event.start);
+          return;
+        }
+
+        var month = scheduleMonth(event.start.slice(0, 4), event.start.slice(5, 7));
+        var card = document.createElement('article');
+        card.className = 'schedule-card';
+        card.setAttribute('data-schedule-category', event.category.key);
+        card.setAttribute('data-schedule-date', event.start);
+
+        var dateBox = document.createElement('div');
+        dateBox.className = 'schedule-date';
+        var day = document.createElement('strong');
+        day.textContent = event.start.slice(8, 10);
+        var weekday = document.createElement('span');
+        weekday.textContent = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'][new Date(event.start + 'T00:00:00').getDay()];
+        dateBox.appendChild(day);
+        dateBox.appendChild(weekday);
+        card.appendChild(dateBox);
+
+        if (event.image) {
+          var image = document.createElement('img');
+          image.src = event.image;
+          image.alt = event.title + ' 행사 이미지';
+          card.appendChild(image);
+        }
+
+        var info = document.createElement('div');
+        info.className = 'schedule-info';
+        var badge = document.createElement('span');
+        badge.className = 'schedule-category category-' + event.category.key;
+        badge.textContent = event.category.name;
+        var title = document.createElement('h3');
+        title.textContent = event.title;
+        var place = document.createElement('p');
+        place.className = 'schedule-place';
+        place.textContent = event.place + ' · ' + event.start + ' ~ ' + event.end;
+        var summary = document.createElement('p');
+        summary.textContent = event.summary;
+        var link = document.createElement('a');
+        link.href = event.path;
+        link.textContent = '상세 일정 보기 →';
+        info.appendChild(badge);
+        info.appendChild(title);
+        info.appendChild(place);
+        info.appendChild(summary);
+        info.appendChild(link);
+        card.appendChild(info);
+        month.querySelector('.schedule-list').appendChild(card);
+      }
+
+      function syncScheduleFromRss() {
+        fetch('/rss', { credentials: 'same-origin' })
+          .then(function (response) {
+            if (!response.ok) throw new Error('RSS ' + response.status);
+            return response.text();
+          })
+          .then(function (xmlText) {
+            var xml = new DOMParser().parseFromString(xmlText, 'application/xml');
+            Array.from(xml.querySelectorAll('item')).forEach(function (item) {
+              var linkText = (item.querySelector('link') || {}).textContent || '';
+              var path = new URL(linkText, window.location.origin).pathname.replace(/\/$/, '');
+              if (!/^\/\d+$/.test(path)) return;
+              var description = (item.querySelector('description') || {}).textContent || '';
+              var content = new DOMParser().parseFromString(description, 'text/html');
+              var table = Array.from(content.querySelectorAll('table')).find(function (candidate) {
+                var labels = Array.from(candidate.querySelectorAll('tr td:first-child')).map(function (cell) {
+                  return cell.textContent.trim();
+                });
+                return labels.indexOf('장소') >= 0 && (labels.indexOf('기간') >= 0 || labels.indexOf('일정') >= 0);
+              });
+              if (!table) return;
+              var values = {};
+              table.querySelectorAll('tr').forEach(function (row) {
+                var cells = row.querySelectorAll('td');
+                if (cells.length >= 2) values[cells[0].textContent.trim()] = cells[1].textContent.trim();
+              });
+              var dates = parseScheduleDates(values['기간'] || values['일정'] || '');
+              if (!dates) return;
+              appendScheduleCard({
+                path: path,
+                title: decodeScheduleText(((item.querySelector('title') || {}).textContent || '').trim()),
+                category: scheduleCategory(((item.querySelector('category') || {}).textContent || '').trim()),
+                start: dates[0],
+                end: dates[1],
+                place: values['장소'] || '공식 안내 확인',
+                summary: ((content.querySelector('p') || {}).textContent || '').trim() || '공식 일정과 방문 정보를 확인하세요.',
+                image: (content.querySelector('img') || {}).src || ''
+              });
+            });
+
+            document.querySelectorAll('.schedule-list').forEach(function (list) {
+              Array.from(list.querySelectorAll('.schedule-card'))
+                .sort(function (a, b) {
+                  return (a.getAttribute('data-schedule-date') || '9999').localeCompare(b.getAttribute('data-schedule-date') || '9999');
+                })
+                .forEach(function (card) { list.appendChild(card); });
+            });
+            var container = document.querySelector('.event-schedule-view');
+            Array.from(container.querySelectorAll('[data-schedule-month]'))
+              .sort(function (a, b) {
+                return (a.getAttribute('data-schedule-month-key') || '9999').localeCompare(b.getAttribute('data-schedule-month-key') || '9999');
+              })
+              .forEach(function (month) { container.insertBefore(month, container.querySelector('.schedule-notice')); });
+            var active = document.querySelector('[data-schedule-filter].is-active');
+            applyScheduleFilter(active ? active.getAttribute('data-schedule-filter') : 'all');
+          })
+          .catch(function (error) {
+            console.warn('ACTIVELOG 일정 자동 갱신 실패:', error);
+          });
+      }
+
+      if (scheduleMode) syncScheduleFromRss();
 
       /* 기존 글의 상단 배너를 공식 행사 이미지로 교체 */
       var postBannerImages = {
@@ -1036,6 +1216,10 @@
         var path = window.location.pathname.replace(/\/$/, '');
         var image = postBannerImages[path];
         var header = document.querySelector('.article-header');
+        if (!image) {
+          var articleImage = document.querySelector('#article-view figure img, #article-view img');
+          if (articleImage) image = articleImage.currentSrc || articleImage.src;
+        }
         if (!image || !header) return;
         header.setAttribute('thumbnail', image);
         header.style.setProperty('background-image', 'url("' + image + '")', 'important');
@@ -1065,6 +1249,42 @@
             if (index > 0) cell.style.setProperty('background-color', '#fff', 'important');
           });
         });
+      }
+
+      var postImageRequests = {};
+      function fetchCurrentPostImage(href) {
+        var url = new URL(href, window.location.origin);
+        var path = url.pathname.replace(/\/$/, '');
+        if (!/^\/\d+$/.test(path)) return Promise.resolve('');
+        if (!postImageRequests[path]) {
+          postImageRequests[path] = fetch(path, { credentials: 'same-origin' })
+            .then(function (response) {
+              if (!response.ok) throw new Error('게시글 이미지 ' + response.status);
+              return response.text();
+            })
+            .then(function (htmlText) {
+              var postDocument = new DOMParser().parseFromString(htmlText, 'text/html');
+              var image = postDocument.querySelector('#article-view figure img, #article-view img');
+              return image ? image.src : '';
+            })
+            .catch(function () { return ''; });
+        }
+        return postImageRequests[path];
+      }
+
+      function refreshVisiblePostThumbnails() {
+        document.querySelectorAll('#latest-post-grid .trending-card, .area-aside .box-recent .list-recent:not(.list-tab) > li, .area-common .article-type-common')
+          .forEach(function (item) {
+            var link = item.querySelector('a[href]');
+            if (!link) return;
+            fetchCurrentPostImage(link.href).then(function (imageUrl) {
+              if (!imageUrl) return;
+              var image = item.querySelector('img');
+              if (image) image.src = imageUrl;
+              var thumbnail = item.querySelector('.thumbnail');
+              if (thumbnail) thumbnail.style.setProperty('background-image', 'url("' + imageUrl + '")', 'important');
+            });
+          });
       }
 
       function populateLatestPosts() {
@@ -1143,6 +1363,7 @@
           grid.appendChild(card);
         });
         grid.setAttribute('data-loaded', '1');
+        refreshVisiblePostThumbnails();
       }
 
       applyOfficialPostBanner();

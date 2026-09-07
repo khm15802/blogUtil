@@ -12,6 +12,26 @@ from urllib.request import Request, urlopen
 CATEGORIES = ["러닝", "자전거", "캠핑·레저", "행사·이벤트"]
 SEOUL_FESTIVAL_MAIN_URL = "https://festival.seoul.go.kr/festival/main/festivalMain.do"
 SEOUL_FESTIVAL_BASE_URL = "https://festival.seoul.go.kr"
+KAAF_SCHEDULE_URL = "https://www.kaaf.or.kr/ver3/info/internal.asp?currentYear=2026"
+GOCAF_URL = "https://gocaf.kr/"
+GOCAF_KINTEX_FINAL_PART1_URL = (
+    "https://gocaf.kr/exhibition-info/2026-gocaf-kintex-the-final-season1/"
+)
+GOCAF_KINTEX_FINAL_PART1_POSTER_URL = (
+    "https://d1lfwrrxe5dvss.cloudfront.net/wp-content/uploads/2026/06/23225452/"
+    "8.-261009_%EA%B3%A0%EC%B9%B4%ED%94%84-%ED%82%A8%ED%85%8D%EC%8A%A4_"
+    "%EA%B5%AD%EB%AC%B8_%EC%9B%B9%EC%9A%A9%ED%8F%AC%EC%8A%A4%ED%84%B0_"
+    "x336x504px.png"
+)
+GOCAF_KINTEX_FINAL_PART2_URL = (
+    "https://gocaf.kr/exhibition-info/2026-gocaf-kintex-the-final-season2/"
+)
+GOCAF_KINTEX_FINAL_PART2_POSTER_URL = (
+    "https://d1lfwrrxe5dvss.cloudfront.net/wp-content/uploads/2026/09/02000907/"
+    "10.-261127_%EA%B3%A0%EC%B9%B4%ED%94%84-%ED%82%A8%ED%85%8D%EC%8A%A4_"
+    "%EA%B5%AD%EB%AC%B8_%EC%9B%B9%EC%9A%A9%ED%8F%AC%EC%8A%A4%ED%84%B0_"
+    "336x504px.png"
+)
 
 # 서울시 공식 축제 페이지에서 2026-09-01에 확인한 행사만 사용한다.
 # 정보가 바뀔 수 있으므로 본문에는 항상 공식 페이지 재확인 안내를 넣는다.
@@ -61,6 +81,60 @@ OFFICIAL_EVENTS = (
         "poster_url": "https://festival.seoul.go.kr/cmmn/file/getImage.do?atchFileId=5d8c4e8289ca407cbfa8ac8db49cd343&thumb=Y",
         "tags": ["서울한옥위크", "북촌", "서촌", "서울문화행사"],
     },
+    {
+        "topic_key": "kaaf-national-university-athletics-2026",
+        "category": "러닝",
+        "title": "제80회 전국대학대항육상경기대회",
+        "summary": "대한육상연맹 공식 국내경기 일정에 등록된 전국 대학 육상대회입니다.",
+        "start_date": "2026-09-14", "end_date": "2026-09-16", "place": "공식 일정 확인",
+        "time": "세부 경기 시간은 공식 요강 확인", "fee": "공식 요강 확인",
+        "program": "트랙·필드 종목 경기", "official_url": KAAF_SCHEDULE_URL,
+        "poster_url": "", "tags": ["육상대회", "러닝", "2026전국대회"],
+    },
+    {
+        "topic_key": "kaaf-danyang-moonlight-2026",
+        "category": "러닝",
+        "title": "2026 단양 달빛 중장거리 챌린지대회",
+        "summary": "대한육상연맹 공식 일정에 등록된 단양 중장거리 육상 챌린지대회입니다.",
+        "start_date": "2026-10-03", "end_date": "2026-10-03", "place": "단양",
+        "time": "세부 경기 시간은 공식 요강 확인", "fee": "공식 요강 확인",
+        "program": "중장거리 달리기 경기", "official_url": KAAF_SCHEDULE_URL,
+        "poster_url": "", "tags": ["단양달빛챌린지", "러닝", "2026육상대회"],
+    },
+    {
+        "topic_key": "kaaf-national-sports-festival-2026",
+        "category": "러닝",
+        "title": "제107회 전국체육대회 육상경기",
+        "summary": "대한육상연맹 공식 국내경기 일정에 등록된 전국체육대회 육상경기입니다.",
+        "start_date": "2026-10-18", "end_date": "2026-10-21", "place": "서귀포",
+        "time": "세부 경기 시간은 공식 요강 확인", "fee": "공식 안내 확인",
+        "program": "트랙·필드 종목 경기", "official_url": KAAF_SCHEDULE_URL,
+        "poster_url": "", "tags": ["전국체전", "육상경기", "러닝", "2026전국체전"],
+    },
+    {
+        "topic_key": "gocaf-kintex-final-2026",
+        "category": "캠핑·레저",
+        "title": "고카프 킨텍스 더 파이널 시즌 PART 1",
+        "summary": "공식 고카프 안내에 공개된 캠핑·레포츠 박람회 일정입니다.",
+        "start_date": "2026-10-09", "end_date": "2026-10-11", "place": "일산 킨텍스 2전시장",
+        "time": "10:00~18:00", "fee": "입장료·할인은 공식 안내 확인",
+        "program": "캠핑 장비 전시, 레포츠 체험, 캠프 푸드 페스타",
+        "official_url": GOCAF_KINTEX_FINAL_PART1_URL,
+        "poster_url": GOCAF_KINTEX_FINAL_PART1_POSTER_URL,
+        "tags": ["고카프", "캠핑", "캠핑박람회", "2026캠핑행사"],
+    },
+    {
+        "topic_key": "gocaf-kintex-final-part2-2026",
+        "category": "캠핑·레저",
+        "title": "고카프 킨텍스 더 파이널 시즌 PART 2",
+        "summary": "공식 고카프 안내에 공개된 캠핑·레포츠 박람회 일정입니다.",
+        "start_date": "2026-11-27", "end_date": "2026-11-29", "place": "일산 킨텍스 2전시장",
+        "time": "10:00~18:00", "fee": "입장료·할인은 공식 안내 확인",
+        "program": "캠핑 장비 전시, 레포츠 체험, 참가기업 신제품 소개",
+        "official_url": GOCAF_KINTEX_FINAL_PART2_URL,
+        "poster_url": GOCAF_KINTEX_FINAL_PART2_POSTER_URL,
+        "tags": ["고카프", "캠핑", "캠핑박람회", "2026캠핑행사"],
+    },
 )
 
 
@@ -90,7 +164,7 @@ class OfficialPostGenerator:
 <p style="padding:18px;background:#f3faf5;border-left:4px solid #16a34a;"><strong>공식 안내</strong><br><a href="{escaped['official_url']}" target="_blank" rel="noopener"><strong>서울시 공식 축제 페이지에서 최신 정보 확인하기 →</strong></a></p>
 <h2>행사 핵심 정보</h2>
 <table class="activelog-info-table" data-ke-style="style12" style="width:100%;border-collapse:collapse;color:#222;background:#fff"><tbody>
-<tr><td><strong>기간</strong></td><td>{escaped['start_date']} ~ {escaped['end_date']}</td></tr>
+<tr><td><strong>기간</strong></td><td><span style="color:#222 !important">{escaped['start_date']} ~ {escaped['end_date']}</span></td></tr>
 <tr><td><strong>장소</strong></td><td>{escaped['place']}</td></tr>
 <tr><td><strong>운영 시간</strong></td><td>{escaped['time']}</td></tr>
 <tr><td><strong>주요 프로그램</strong></td><td>{escaped['program']}</td></tr>
@@ -214,13 +288,25 @@ class SeoulFestivalCollector:
             "poster_url": poster_url,
         }
 
-    def collect(self, recent_keys: list[str], count: int, *, today: date | None = None) -> list[dict]:
+    def collect(
+        self,
+        recent_keys: list[str],
+        count: int,
+        *,
+        today: date | None = None,
+        category: str | None = None,
+    ) -> list[dict]:
         if count < 1:
             raise ValueError("수집 개수는 1개 이상이어야 합니다.")
         checked = today or date.today()
         posts: list[dict] = []
         recent = set(recent_keys)
-        for url in self.discover_urls()[:80]:
+        try:
+            discovered_urls = self.discover_urls()[:80]
+        except Exception:
+            # 한 출처가 일시적으로 차단되어도 카테고리별 공식 보완 목록은 사용한다.
+            discovered_urls = []
+        for url in discovered_urls:
             code = re.search(r"festacode=(\d+)", url)
             topic_key = f"seoul-festival-{code.group(1)}" if code else ""
             if topic_key in recent:
@@ -231,11 +317,25 @@ class SeoulFestivalCollector:
                 continue
             if date.fromisoformat(event["end_date"]) < checked:
                 continue
+            if category and event["category"] != category:
+                continue
             post = self._to_post(event, checked)
             posts.append(post)
             recent.add(post["topic_key"])
             if len(posts) == count:
                 break
+        # 보완 목록: 연맹·주최사 공식 일정이 별도 페이지에 공개된 종목도
+        # 동일한 검증 템플릿으로 제공한다. 서울 축제 수집 결과가 부족할 때만 사용한다.
+        if len(posts) < count and category in {"러닝", "자전거", "캠핑·레저"}:
+            for event in OFFICIAL_EVENTS:
+                if event["topic_key"] in recent or (category and event["category"] != category):
+                    continue
+                if date.fromisoformat(event["end_date"]) < checked:
+                    continue
+                posts.append(self._to_post(event, checked))
+                recent.add(event["topic_key"])
+                if len(posts) == count:
+                    break
         return posts
 
     @staticmethod
@@ -270,12 +370,17 @@ class SeoulFestivalCollector:
             participation_rows.append(f"<li><strong>문의:</strong> {inquiry}</li>")
         participation_rows.append(f"<li><strong>관람료:</strong> {values['fee']}</li>")
         participation_html = "".join(participation_rows)
+        source_label = "공식 일정 페이지"
+        if "kaaf.or.kr" in event["official_url"]:
+            source_label = "대한육상연맹 공식 경기 일정"
+        elif "gocaf.kr" in event["official_url"]:
+            source_label = "고카프 공식 행사 안내"
         content = f"""
 <p><strong>{title}</strong> 방문을 계획한다면 날짜와 운영 시간을 먼저 확인하세요. {html.escape(summary)}</p>
-<p style="padding:18px;background:#f3faf5;border-left:4px solid #16a34a;"><strong>공식 안내</strong><br><a href="{official_url}" target="_blank" rel="noopener"><strong>서울시 공식 축제 페이지에서 최신 정보 확인하기 →</strong></a></p>
+<p style="padding:18px;background:#f3faf5;border-left:4px solid #16a34a;"><strong>공식 안내</strong><br><a href="{official_url}" target="_blank" rel="noopener"><strong>{source_label}에서 최신 정보 확인하기 →</strong></a></p>
 <h2>{title} 핵심 정보</h2>
 <table class="activelog-info-table" data-ke-style="style12" style="width:100%;border-collapse:collapse;color:#222;background:#fff"><tbody>
-<tr><td><strong>기간</strong></td><td>{values['start_date']} ~ {values['end_date']}</td></tr>
+<tr><td><strong>기간</strong></td><td><span style="color:#222 !important">{values['start_date']} ~ {values['end_date']}</span></td></tr>
 <tr><td><strong>장소</strong></td><td>{values['place']}</td></tr>
 <tr><td><strong>운영 시간</strong></td><td>{values['time']}</td></tr>
 <tr><td><strong>주요 프로그램</strong></td><td>{values['program']}</td></tr>
@@ -287,7 +392,7 @@ class SeoulFestivalCollector:
 <p>{values['program']}</p><ul>{participation_html}</ul>
 <h2>{values['place']} 방문 전 확인사항</h2>
 <ul><li>행사 당일 운영 여부와 회차별 시작 시간</li><li>사전 신청 또는 유료 구역 운영 여부</li><li>행사장과 가까운 대중교통 및 당일 교통 통제</li><li>우천·기상 상황에 따른 변경 또는 취소 공지</li></ul>
-<h2>참고 및 공식 안내</h2><p><a href="{official_url}" target="_blank" rel="noopener">서울시 공식 축제 안내 바로가기</a></p>
+<h2>참고 및 공식 안내</h2><p><a href="{official_url}" target="_blank" rel="noopener">{source_label} 바로가기</a></p>
 <p><small>정보 확인일: {checked:%Y.%m.%d}. 일정과 운영 내용은 변경될 수 있으므로 방문 직전에 공식 페이지를 다시 확인하세요.</small></p>
 """.strip()
         simple_title = re.sub(r"\s+", " ", event["title"]).strip()
@@ -311,7 +416,7 @@ class SeoulFestivalCollector:
             "summary": summary,
             "content_html": content,
             "tags": tags,
-            "sources": [{"title": "서울시 공식 축제 안내", "url": event["official_url"]}],
+            "sources": [{"title": source_label, "url": event["official_url"]}],
             "poster_url": event["poster_url"],
         }
 

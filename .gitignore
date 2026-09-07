@@ -33,6 +33,7 @@ bin/
 ### Python / local runtime ###
 .venv/
 .python/
+.tools/
 __pycache__/
 *.py[cod]
 .env

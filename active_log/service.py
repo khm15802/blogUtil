@@ -24,19 +24,25 @@ class AutomationService:
         self.db.set_state("category_index", str(index))
         return CATEGORIES[index]
 
-    def create_draft(self) -> int:
-        created = self.collect_drafts(1)
+    def create_draft(self, category: str | None = None) -> int:
+        created = self.collect_drafts(1, category=category)
         if not created:
-            raise RuntimeError("공식 사이트에서 새로 수집할 행사가 없습니다.")
+            target = f" '{category}' 카테고리에" if category else ""
+            raise RuntimeError(f"공식 사이트에서{target} 새로 수집할 행사가 없습니다.")
         return created[0]
 
-    def collect_drafts(self, count: int = 3) -> list[int]:
-        posts = SeoulFestivalCollector().collect(self.db.recent_topic_keys(), count)
+    def collect_drafts(self, count: int = 3, *, category: str | None = None) -> list[int]:
+        if category is not None and category not in CATEGORIES:
+            raise ValueError(f"지원하지 않는 카테고리입니다: {category}")
+        posts = SeoulFestivalCollector().collect(
+            self.db.recent_topic_keys(), count, category=category
+        )
         created: list[int] = []
         for post in posts:
             try:
                 ensure_non_political(post)
-                download_official_poster(post, Path("active_log/assets"))
+                if post.get("poster_url"):
+                    download_official_poster(post, Path("active_log/assets"))
             except Exception:
                 continue
             created.append(self.db.save_post(post))
