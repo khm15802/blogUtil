@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 from .config import Settings
 from .content_policy import ensure_non_political
 from .db import Database
-from .official_generator import CATEGORIES, SeoulFestivalCollector, download_official_poster
+from .official_generator import CATEGORIES, OFFICIAL_EVENTS, SeoulFestivalCollector, download_official_poster
 from .publisher import TistoryPublisher
 from .quality import inspect_post
 
@@ -28,7 +28,7 @@ class AutomationService:
         created = self.collect_drafts(1, category=category)
         if not created:
             target = f" '{category}' 카테고리에" if category else ""
-            raise RuntimeError(f"공식 사이트에서{target} 새로 수집할 행사가 없습니다.")
+            raise RuntimeError(f"공식 사이트에서{target} 공식 포스터를 확보할 수 있는 새 행사가 없습니다.")
         return created[0]
 
     def collect_drafts(self, count: int = 3, *, category: str | None = None) -> list[int]:
@@ -39,6 +39,8 @@ class AutomationService:
         )
         created: list[int] = []
         for post in posts:
+            if not post.get("poster_url"):
+                continue
             try:
                 ensure_non_political(post)
                 if post.get("poster_url"):
@@ -52,11 +54,11 @@ class AutomationService:
         if self.config.publish_visibility != "private":
             raise RuntimeError("1차 버전 안전장치: PUBLISH_VISIBILITY는 private이어야 합니다.")
         post = self._validated_post(post_id)
+        image_paths = self.ensure_images(post)
         post = self.db.claim_post_for_publish(post_id)
         publisher = TistoryPublisher(
             self.config.blog_name, self.config.tistory_profile_dir, self.config.tistory_headless
         )
-        image_paths = self.find_images(post["topic_key"])
         try:
             url = await publisher.publish_private(post, image_paths)
             self.db.update_publish_result(post_id, status="private", url=url)
@@ -69,11 +71,11 @@ class AutomationService:
         if self.config.publish_visibility != "public":
             raise RuntimeError("공개 게시를 사용하려면 PUBLISH_VISIBILITY=public이어야 합니다.")
         post = self._validated_post(post_id)
+        image_paths = self.ensure_images(post)
         post = self.db.claim_post_for_publish(post_id)
         publisher = TistoryPublisher(
             self.config.blog_name, self.config.tistory_profile_dir, self.config.tistory_headless
         )
-        image_paths = self.find_images(post["topic_key"])
         try:
             url = await publisher.publish(post, image_paths, visibility="public")
             self.db.update_publish_result(post_id, status="public", url=url)
@@ -97,6 +99,17 @@ class AutomationService:
     def find_image(self, topic_key: str) -> Path | None:
         images = self.find_images(topic_key)
         return images[0] if images else None
+
+    def ensure_images(self, post: dict) -> list[Path]:
+        images = self.find_images(post['topic_key'])
+        if not images:
+            event = next((event for event in OFFICIAL_EVENTS if event['topic_key'] == post['topic_key']), None)
+            if event and event.get('poster_url'):
+                download_official_poster(event, Path('active_log/assets'))
+                images = self.find_images(post['topic_key'])
+        if not images:
+            raise RuntimeError('공식 포스터가 없어 게시를 보류했습니다. 공식 포스터를 추가한 뒤 다시 게시하세요.')
+        return images
 
     def find_images(self, topic_key: str) -> list[Path]:
         asset_dir = Path("active_log/assets")
@@ -135,3 +148,11 @@ class AutomationService:
             self.config.max_interval_days * 24 * 3600,
         )
         return datetime.now(tz) + timedelta(seconds=delay_seconds)
+
+    async def sync_view_counts(self, limit: int = 50) -> int:
+        """Read-only Tistory statistics sync; never publishes or edits posts."""
+        publisher = TistoryPublisher(
+            self.config.blog_name, self.config.tistory_profile_dir, self.config.tistory_headless
+        )
+        rows = await publisher.list_posts(limit=limit)
+        return self.db.save_view_snapshots(rows)

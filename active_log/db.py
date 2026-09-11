@@ -26,6 +26,16 @@ CREATE TABLE IF NOT EXISTS runtime_state (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS view_snapshots (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tistory_post_id INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    public_url TEXT,
+    views INTEGER NOT NULL,
+    captured_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_view_snapshots_post_time
+    ON view_snapshots(tistory_post_id, captured_at DESC);
 """
 
 
@@ -60,10 +70,12 @@ class Database:
             )
             return int(cursor.lastrowid)
 
-    def recent_topic_keys(self, limit: int = 100) -> list[str]:
+    def recent_topic_keys(self, limit: int | None = None) -> list[str]:
         with self.connect() as connection:
+            query = "SELECT topic_key FROM posts ORDER BY id DESC"
             rows = connection.execute(
-                "SELECT topic_key FROM posts ORDER BY id DESC LIMIT ?", (limit,)
+                query if limit is None else query + " LIMIT ?",
+                () if limit is None else (limit,),
             ).fetchall()
         return [str(row["topic_key"]) for row in rows]
 
@@ -168,3 +180,40 @@ class Database:
         with self.connect() as connection:
             row = connection.execute("SELECT value FROM runtime_state WHERE key=?", (key,)).fetchone()
         return str(row["value"]) if row else None
+
+    def save_view_snapshots(self, rows: list[dict]) -> int:
+        """Store one point-in-time view count for each Tistory post."""
+        captured_at = datetime.now().isoformat()
+        valid_rows = [row for row in rows if row.get("views") is not None]
+        with self.connect() as connection:
+            connection.executemany(
+                """INSERT INTO view_snapshots
+                (tistory_post_id, title, public_url, views, captured_at)
+                VALUES (?, ?, ?, ?, ?)""",
+                [
+                    (int(row["id"]), str(row.get("title", "")), row.get("url"),
+                     int(row["views"]), captured_at)
+                    for row in valid_rows
+                ],
+            )
+        return len(valid_rows)
+
+    def latest_view_stats(self, limit: int = 50) -> list[dict]:
+        with self.connect() as connection:
+            rows = connection.execute(
+                """SELECT current.tistory_post_id AS id, current.title,
+                    current.public_url AS url, current.views, current.captured_at,
+                    current.views - COALESCE(previous.views, 0) AS delta
+                FROM view_snapshots AS current
+                LEFT JOIN view_snapshots AS previous
+                  ON previous.tistory_post_id = current.tistory_post_id
+                 AND previous.id = (
+                    SELECT p.id FROM view_snapshots AS p
+                    WHERE p.tistory_post_id = current.tistory_post_id AND p.id < current.id
+                    ORDER BY p.id DESC LIMIT 1
+                 )
+                WHERE current.id IN (SELECT MAX(id) FROM view_snapshots GROUP BY tistory_post_id)
+                ORDER BY current.views DESC, current.id DESC LIMIT ?""",
+                (limit,),
+            ).fetchall()
+        return [dict(row) for row in rows]

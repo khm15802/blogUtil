@@ -101,3 +101,12 @@ def test_seoul_collector_uses_official_category_fallback():
     assert posts[0]["sources"][0]["title"] == "고카프 공식 행사 안내"
     assert "/2026-gocaf-kintex-the-final-season1/" in posts[0]["sources"][0]["url"]
     assert posts[0]["poster_url"].endswith("x336x504px.png")
+
+
+def test_fallback_skips_imageless_event_and_continues(monkeypatch):
+    events = [dict(module.OFFICIAL_EVENTS[-1], topic_key='missing', poster_url=''),
+              dict(module.OFFICIAL_EVENTS[-1], topic_key='with-poster')]
+    monkeypatch.setattr(module, 'OFFICIAL_EVENTS', events)
+    collector = SeoulFestivalCollector(fetch=lambda _: '')
+    posts = collector.collect([], 1, today=date(2026, 9, 9), category='캠핑·레저')
+    assert [post['topic_key'] for post in posts] == ['with-poster']

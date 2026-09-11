@@ -1,5 +1,7 @@
 import asyncio
 import json
+import html
+import re
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -125,9 +127,51 @@ class TistoryPublisher:
             await file_input.set_input_files(str(image_path.resolve()))
         await page.wait_for_timeout(5_000)
 
+    @staticmethod
+    def _normalized_title(title: str) -> str:
+        return re.sub(r'\W+', '', html.unescape(title)).casefold()
+
+    async def _assert_no_duplicate(self, page, title: str) -> None:
+        """Check the management list before opening a new post."""
+        expected = self._normalized_title(title)
+        seen_pages: set[tuple[str, ...]] = set()
+        for page_number in range(1, 101):
+            await page.goto(
+                f'https://{self.blog_name}.tistory.com/manage/posts/?page={page_number}',
+                wait_until='domcontentloaded',
+            )
+            if urlparse(page.url).path.rstrip('/') != '/manage/posts':
+                raise RuntimeError('티스토리 기존 글 목록을 확인하지 못해 게시를 중단했습니다. 로그인을 확인하세요.')
+            await page.wait_for_timeout(500)
+            titles = await page.locator('.post_cont .link_cont').all_text_contents()
+            if not titles:
+                raise RuntimeError('기존 글 목록을 읽지 못해 중복 검사를 완료하지 못했습니다.')
+            if any(self._normalized_title(value) == expected for value in titles):
+                raise RuntimeError('티스토리에 같은 제목의 글이 이미 있어 중복 게시를 차단했습니다.')
+            signature = tuple(titles)
+            if signature in seen_pages:
+                raise RuntimeError('기존 글 목록 페이지가 반복되어 중복 검사를 완료하지 못했습니다.')
+            seen_pages.add(signature)
+            if len(titles) < 15:
+                return
+        raise RuntimeError('기존 글 목록의 중복 검사 범위를 초과해 게시를 중단했습니다.')
+
+    @staticmethod
+    async def _verify_post_images(page, expected_count: int) -> None:
+        state = await page.evaluate("""() => {
+            const editor = window.tinymce && window.tinymce.activeEditor;
+            if (!editor) return null;
+            const images = Array.from(editor.getBody().querySelectorAll('img'));
+            return {count: images.length, loaded: images.filter(img => img.complete && img.naturalWidth > 0).length};
+        }""")
+        if not state or state['count'] < expected_count or state['loaded'] < expected_count:
+            raise RuntimeError('공식 포스터가 편집기에 정상 반영되지 않아 게시를 중단했습니다.')
+
     async def publish(self, post: dict, image_paths: list[Path] | None = None, *, visibility: str = "private") -> str:
         if visibility not in {"private", "public"}:
             raise ValueError("visibility는 private 또는 public이어야 합니다.")
+        if not image_paths or any(not path.is_file() or path.stat().st_size == 0 for path in image_paths):
+            raise RuntimeError('공식 포스터가 없어 게시를 보류했습니다.')
         async with async_playwright() as playwright:
             runtime_profile = self.profile_dir / "automation-runtime"
             runtime_profile.mkdir(parents=True, exist_ok=True)
@@ -138,6 +182,7 @@ class TistoryPublisher:
             page = context.pages[0] if context.pages else await context.new_page()
             page.on("dialog", lambda dialog: asyncio.create_task(dialog.accept()))
             try:
+                await self._assert_no_duplicate(page, post['title'])
                 new_post_url = f"https://{self.blog_name}.tistory.com/manage/newpost/"
                 await page.goto(new_post_url, wait_until="domcontentloaded")
                 if "auth" in page.url or "login" in page.url:
@@ -256,6 +301,7 @@ class TistoryPublisher:
                 # Images and mode changes may trigger a delayed autosave restore. Refuse
                 # to publish unless the title still belongs to the requested post.
                 await self._set_and_verify_title(title, post["title"])
+                await self._verify_post_images(page, len(image_paths))
                 await page.get_by_role("button", name="완료").click()
                 option_label = "공개" if visibility == "public" else "비공개"
                 visibility_option = page.get_by_text(option_label, exact=True)
@@ -274,7 +320,11 @@ class TistoryPublisher:
                 if visibility == "private" and "비공개" not in list_text:
                     raise RuntimeError("게시글은 찾았지만 비공개 상태를 확인하지 못했습니다.")
                 await self._save_session(context)
-                return page.url
+                public_link = published_title.locator(
+                    "xpath=ancestor::li[.//a[contains(@class, 'link_cont')]][1]"
+                ).locator("a.link_cont").first
+                public_url = await public_link.get_attribute("href") if await public_link.count() else None
+                return public_url or page.url
             except Exception:
                 try:
                     Path("output").mkdir(parents=True, exist_ok=True)

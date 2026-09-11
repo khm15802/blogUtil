@@ -11,6 +11,7 @@ from .db import Database
 from .service import AutomationService
 from .renderer import PostRenderer
 from .sample_data import running_schedule_sample
+from .official_generator import DAILY_CATEGORIES
 
 
 def run() -> None:
@@ -28,6 +29,8 @@ def run() -> None:
     )
     daily_parser.add_argument("--count", type=int, default=3, choices=range(1, 11), metavar="1-10")
     subparsers.add_parser("publish-next", help="검토를 마친 대기열의 첫 글을 티스토리에 공개 등록")
+    stats_parser = subparsers.add_parser("sync-stats", help="공개 글 조회수를 기록")
+    stats_parser.add_argument("--limit", type=int, default=50, choices=range(1, 201), metavar="1-200")
     args = parser.parse_args()
 
     if args.command == "login":
@@ -63,7 +66,7 @@ def run() -> None:
         db = Database(settings.database_path)
         service = AutomationService(settings, db)
         post_ids: list[int] = []
-        daily_categories = ("러닝", "캠핑·레저")
+        daily_categories = DAILY_CATEGORIES
         for index in range(args.count):
             category = daily_categories[index % len(daily_categories)]
             created = service.collect_drafts(1, category=category)
@@ -90,6 +93,11 @@ def run() -> None:
         service = AutomationService(settings, db)
         url = asyncio.run(service.publish_public(int(post["id"])))
         print(f"공개 등록 완료: {url}")
+        return
+    if args.command == "sync-stats":
+        db = Database(settings.database_path)
+        count = asyncio.run(AutomationService(settings, db).sync_view_counts(args.limit))
+        print(f"조회수 기록 완료: {count}개")
         return
     uvicorn.run("active_log.web:app", host=settings.host, port=settings.port, reload=False)
 

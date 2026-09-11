@@ -60,6 +60,21 @@ def test_collect_drafts_passes_selected_category(monkeypatch, tmp_path: Path):
     assert received["category"] == "자전거"
 
 
+def test_collect_skips_missing_and_failed_posters(monkeypatch, tmp_path):
+    service = AutomationService(Settings(), Database(tmp_path / 'posters.db'))
+    posts = [_queued_post(key, '생활 체육 행사') for key in ('missing', 'broken', 'ready')]
+    posts[1]['poster_url'] = 'https://example.com/broken.png'
+    posts[2]['poster_url'] = 'https://example.com/ready.png'
+    monkeypatch.setattr('active_log.service.SeoulFestivalCollector.collect', lambda *_a, **_k: posts)
+    def download(post, _directory):
+        if post['topic_key'] == 'broken':
+            raise RuntimeError('download failed')
+    monkeypatch.setattr('active_log.service.download_official_poster', download)
+    ids = service.collect_drafts(3)
+    assert len(ids) == 1
+    assert service.db.get_post(ids[0])['topic_key'] == 'ready'
+
+
 def test_next_run_is_within_configured_range(tmp_path: Path):
     config = Settings(database_path=tmp_path / "test.db", min_interval_days=1, max_interval_days=3)
     service = AutomationService(config, Database(config.database_path))

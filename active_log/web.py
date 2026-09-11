@@ -87,7 +87,7 @@ async def dashboard() -> str:
     body{{font-family:sans-serif;max-width:1200px;margin:40px auto;padding:0 20px}}
     table{{border-collapse:collapse;width:100%}}th,td{{border:1px solid #ddd;padding:8px;text-align:left}}
     .safe{{color:#087f23;font-weight:bold}}button{{padding:8px 12px}}
-    </style><h1>Active Log 자동화</h1><p><a href='/queue'>게시 대기 글 등록</a> · <a href='/composer'>HTML 제작 도구</a></p>
+    </style><h1>Active Log 자동화</h1><p><a href='/queue'>게시 대기 글 등록</a> · <a href='/composer'>HTML 제작 도구</a> · <a href='/stats'>조회수 통계</a></p>
     <p class='safe'>검토 완료 글만 수동으로 공개 게시하세요. 자동 공개는 꺼져 있습니다.</p>
     <p>대기 글: {db.count_drafts()}개 / 다음 자동 실행: {db.get_state('next_run_at') or '예약 전'} / 자동 등록: {settings.auto_publish}</p>
     <p>최근 실행 결과: {html.escape(db.get_state('last_cycle_result') or '아직 실행되지 않음')}</p>
@@ -220,3 +220,24 @@ async def publish_post(post_id: int):
 @app.get("/health")
 async def health() -> dict:
     return {"status": "ok", "visibility": settings.publish_visibility, "next_run_at": db.get_state("next_run_at")}
+
+
+@app.get("/stats", response_class=HTMLResponse)
+async def stats() -> str:
+    rows = []
+    for row in db.latest_view_stats():
+        url = html.escape(str(row.get("url") or "#"), quote=True)
+        rows.append(
+            f"<tr><td>{html.escape(row['title'])}</td>"
+            f"<td>{row['views']}</td><td>{row['delta']:+d}</td>"
+            f"<td><a href='{url}' target='_blank' rel='noopener'>글 열기</a></td></tr>"
+        )
+    return """<!doctype html><html lang='ko'><meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width,initial-scale=1'>
+    <title>조회수 통계</title><style>
+    body{font-family:sans-serif;max-width:1100px;margin:40px auto;padding:0 20px}
+    table{border-collapse:collapse;width:100%}th,td{border:1px solid #ddd;padding:8px;text-align:left}
+    </style><h1>조회수 통계</h1>
+    <p><a href='/'>관리 화면</a> · <code>active-log sync-stats</code> 실행 후 최신 기록이 표시됩니다.</p>
+    <table><thead><tr><th>제목</th><th>누적 조회수</th><th>이전 기록 대비</th><th>링크</th></tr></thead>
+    <tbody>""" + "".join(rows) + "</tbody></table></html>"
