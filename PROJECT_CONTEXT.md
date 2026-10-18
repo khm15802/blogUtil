@@ -1,6 +1,6 @@
 # Active Log 프로젝트 맥락
 
-마지막 갱신: 2026-10-17
+마지막 갱신: 2026-10-18
 
 ## 목적
 
@@ -140,4 +140,4 @@ macOS에서는 저장소 루트의 `install-macos.command`로 설치하고 `acti
 - 2026-10-17: `instagram-connect --browser` 로컬 HTTPS 연결 도우미 추가. `https://localhost:8766/instagram/callback`을 instartest 앱 리디렉션 URI로 저장했다. 임시 자체 서명 인증서의 브라우저 경고는 사용자가 직접 처리해야 한다. 토큰 교환 기존 코드가 HTTP 400으로 거부되어 새 코드를 로컬 콜백에서 직접 받도록 변경했다. 서버는 127.0.0.1에만 바인딩하고 임의 경로·출처·OAuth state를 검사한다. 시크릿은 메모리에서만 유지하며 연결 완료 또는 10분 경과 후 서버 종료. 실제 연결 및 저장된 토큰의 읽기 전용 API 검증 완료. 로컬 인증서는 output/instagram-local-tls에 보관하며 서버 재시작 시 유효한 인증서를 재사용한다. 앱 시크릿은 저장하지 않는다.
 
 - 2026-10-17: OAuth 토큰 응답의 앱 범위 사용자 ID는 테스터 목록의 Instagram ID와 다를 수 있어 동일성 검사를 사용자 이름(`/me`) 기반으로 수정했다. 저장 및 게시 대상 ID는 검증된 `/me`의 `user_id`를 사용한다. 다른 계정 토큰은 저장 전에 차단한다.
-- 2026-10-18: 기본 이미지 전달은 Cloudflare Quick Tunnel을 게시 중 잠깐 사용하도록 구성했다. 서버는 임의 폴더의 캐러셀 JPEG만 제공하고 게시 처리가 끝나면 닫는다. `cloudflared`는 공식 GitHub digest SHA-256 확인 후 로컬 데이터 폴더에 캐시한다. `daily-publish`는 `publish_public()`을 호출하므로 Windows에서 `.env`의 `INSTAGRAM_AUTO_PUBLISH=true`와 계정 토큰을 설정하면 새 티스토리 공개 글만 연동된다. 전체 테스트 81개 통과. 실행 환경의 외부 DNS 제한으로 공개 터널 이미지 가져오기와 실제 Instagram 게시 확인은 Windows에서 남아 있다.
+- 2026-10-18: 기본 이미지 전달은 Cloudflare Quick Tunnel을 게시 중 잠깐 사용하도록 구성했다. 서버는 임의 폴더의 캐러셀 JPEG만 제공하고 게시 처리가 끝나면 닫는다. `cloudflared`는 공식 GitHub digest SHA-256 확인 후 로컬 데이터 폴더에 캐시한다. `daily-publish`는 `publish_public()`을 호출하므로 Windows에서 `instagram-connect --browser`로 해당 PC의 계정을 연결하고 `.env`에 `INSTAGRAM_AUTO_PUBLISH=true`를 설정하면 새 티스토리 공개 글만 연동된다. 구현은 커밋 `86c31c8`로 `origin/main`에 공유되어 있다. 액세스 토큰과 계정별 환경 설정은 Git에 포함하지 않는다. 전체 테스트 81개 통과. 실제 Instagram 게시 확인은 Windows에서 남아 있다.

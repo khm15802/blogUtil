@@ -4,7 +4,7 @@
 
 ## 현재 상태
 
-- 진행(2026-10-18): Instagram 자동 공개 게시를 Windows의 `daily-publish` 경로와 연결했다. 공개 카드 전달은 기본적으로 게시 중 Cloudflare Quick Tunnel을 사용하며 카드 JPEG 경로만 제공합니다. 실행 파일 다운로드 시 SHA-256을 확인하고 서버·터널을 게시 처리 뒤 닫는다. 전체 81개 테스트 통과. 이 실행 환경에서 외부 터널 주소 조회가 DNS 제한에 걸려 실제 Meta 이미지 수집·게시 검증은 Windows에서 남아 있다. 관련 코드를 Git으로 공유할 예정.
+- 완료(2026-10-18): Instagram 자동 공개 게시 코드는 `86c31c8`로 `origin/main`에 공유되어 있다. `daily-publish` 공개 게시 후 카드 6장을 연동하고, Cloudflare Quick Tunnel은 게시 중 카드 JPEG만 제공한다. 토큰은 비밀값이라 Git에 포함하지 않으며 Windows PC에서 별도로 Instagram 계정을 연결해야 한다. 전체 81개 테스트 통과. 실제 Meta 이미지 수집·게시 검증은 Windows에서 남아 있다.
 
 - 2026-10-17: `instagram-connect --browser`와 로컬 HTTPS 직접 OAuth 콜백을 추가하고 instartest 리디렉션 URI를 저장했다. @active_log.daily 토큰 저장과 읽기 전용 연결 검증을 완료했다.
 
@@ -30,7 +30,7 @@
 
 ## 다음에 결정할 일
 
-- [ ] Windows에서 Git 변경을 받은 뒤 그 PC의 `.env`에 Instagram 계정을 연결하고 `INSTAGRAM_AUTO_PUBLISH=true`를 설정해 첫 티스토리 공개 게시와 Instagram 연동 결과를 확인한다. Instagram 토큰 자동 갱신은 미지원.
+- [ ] Windows에서 `origin/main`의 `86c31c8` 변경을 받는다. 해당 PC에서 `instagram-connect --browser`로 Instagram 계정을 연결하고 `.env`의 `INSTAGRAM_AUTO_PUBLISH=true`를 설정한 뒤 첫 티스토리 공개 게시와 Instagram 연동 결과를 확인한다. Instagram 토큰은 PC별 로컬 `.env`에만 저장하며 자동 갱신은 미지원.
 
 - [ ] 일일 게시 시작·수집 단계 로그 보강 및 콘솔 종료 영향 검토. 9월 9일 게시 실패 원인인 러닝/캠핑·레저 카테고리 조회도 별도 점검.
 
