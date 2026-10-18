@@ -4,6 +4,8 @@
 
 ## 현재 상태
 
+- 진행(2026-10-18): Instagram 프로필용 Active Log 곰 심볼 이미지를 `active_log/assets/instagram-profile-avatar.png`로 제작했다. 프로필 편집 화면의 사진 변경은 OS 파일 선택 창을 요구하며 현재 브라우저 제어 세션에서 해당 파일 창을 조작할 수 없어 계정 적용 확인은 남아 있다.
+
 - 완료(2026-10-18): Instagram 자동 공개 게시 코드는 `86c31c8`로 `origin/main`에 공유되어 있다. `daily-publish` 공개 게시 후 카드 6장을 연동하고, Cloudflare Quick Tunnel은 게시 중 카드 JPEG만 제공한다. 토큰은 비밀값이라 Git에 포함하지 않으며 Windows PC에서 별도로 Instagram 계정을 연결해야 한다. 전체 81개 테스트 통과. 실제 Meta 이미지 수집·게시 검증은 Windows에서 남아 있다.
 
 - 2026-10-17: `instagram-connect --browser`와 로컬 HTTPS 직접 OAuth 콜백을 추가하고 instartest 리디렉션 URI를 저장했다. @active_log.daily 토큰 저장과 읽기 전용 연결 검증을 완료했다.
@@ -41,6 +43,7 @@
 - [ ] README의 현재 기능·설정 설명을 실제 코드와 대조해 갱신
 
 - [x] 2026-10-18: README에 Windows용 Git 업데이트, 설치 갱신, 로컬 Instagram 연결·검증, 자동 게시 켜기 절차를 추가. 토큰은 GitHub에 올리지 않고 각 PC `.env`에 보관함을 명시.
+- [x] 2026-10-18: Instagram 호스팅 테스트가 실제 토큰 선행 검사를 반영하도록 수정. 테스트 전체 81개 통과. README에 계정 확인, Instagram 단독 공개 게시, 티스토리+Instagram 자동 공개 게시 명령의 차이와 실제 게시 주의를 추가.
 
 ## 최근 완료
 

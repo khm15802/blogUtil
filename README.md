@@ -195,6 +195,8 @@ AUTO_PUBLISH=false
 
 ### Windows PC 설정
 
+테스트 전에 명령별 동작을 구분하세요. `instagram-check`는 프로필 API로 계정만 확인하며 카드 생성·이미지 공개 호스팅·게시 자동 연동은 시험하지 않습니다. `instagram-publish <로컬 글 ID>`는 티스토리 글을 건드리지 않고 Instagram에 캐러셀을 실제 공개 게시합니다. 반면 `publish-next`와 `daily-publish`는 티스토리 글을 실제 공개 게시하며, `INSTAGRAM_AUTO_PUBLISH=true`이면 이어서 Instagram에도 게시합니다. 이 명령들은 테스트 모드가 아닙니다. 기존 공개 글은 자동 연동되지 않습니다.
+
 프로젝트 폴더에서 PowerShell을 열고 최신 코드를 받은 뒤 설치를 갱신합니다. 설치 스크립트는 기존 `.env`를 덮어쓰지 않습니다.
 
 ```powershell

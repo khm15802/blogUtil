@@ -94,7 +94,8 @@ def test_service_uses_temporary_host_for_carousel_then_publishes(monkeypatch, tm
         "topic_key": "test-event", "category": "러닝", "title": "테스트 행사",
         "summary": "테스트 안내", "content_html": "<p>테스트</p>", "tags": [], "sources": [],
     })
-    config = Settings(_env_file=None, instagram_media_dir=tmp_path / "media")
+    config = Settings(_env_file=None, instagram_access_token="test-token",
+                      instagram_media_dir=tmp_path / "media")
     service = AutomationService(config, db)
 
     @contextmanager
