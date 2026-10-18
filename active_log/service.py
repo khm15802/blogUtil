@@ -79,10 +79,16 @@ class AutomationService:
         try:
             url = await publisher.publish(post, image_paths, visibility="public")
             self.db.update_publish_result(post_id, status="public", url=url)
-            return url
         except Exception as exc:
             self.db.update_publish_result(post_id, status="failed", error=str(exc))
             raise
+        if self.config.instagram_auto_publish:
+            try:
+                result = await self.publish_instagram(post_id)
+                self.db.set_state("last_instagram_result", f"글 {post_id}: {result}")
+            except Exception as exc:
+                self.db.set_state("last_instagram_result", f"글 {post_id} 인스타그램 게시 실패: {exc}")
+        return url
 
     def _validated_post(self, post_id: int) -> dict:
         post = self.db.get_post(post_id)
@@ -156,3 +162,19 @@ class AutomationService:
         )
         rows = await publisher.list_posts(limit=limit)
         return self.db.save_view_snapshots(rows)
+
+    def prepare_instagram(self, post_id: int, *, config: Settings | None = None) -> tuple[list[str], str]:
+        from .instagram import prepare_cards
+        post = self._validated_post(post_id)
+        images = self.ensure_images(post)
+        return prepare_cards(config or self.config, post, images[0])
+
+    async def publish_instagram(self, post_id: int) -> str:
+        from .instagram_hosting import instagram_media_base
+        from .instagram import InstagramClient, InstagramPublisher
+        InstagramClient(self.config)  # Fail before opening a public tunnel when no token is configured.
+        with instagram_media_base(self.config) as base_url:
+            publish_config = self.config.model_copy(update={"instagram_media_base_url": base_url})
+            urls, caption = self.prepare_instagram(post_id, config=publish_config)
+            publisher = InstagramPublisher(self.config, self.db)
+            return await asyncio.to_thread(publisher.publish, post_id, urls, caption)

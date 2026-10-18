@@ -3,7 +3,15 @@ from email.message import Message
 from pathlib import Path
 
 import active_log.official_generator as module
-from active_log.official_generator import OfficialPostGenerator, SeoulFestivalCollector, download_official_poster
+from active_log.official_generator import (
+    OFFICIAL_EVENTS,
+    OfficialPostGenerator,
+    SeoulFestivalCollector,
+    download_official_poster,
+)
+
+
+OFFICIAL_EVENT_KEYS = [event["topic_key"] for event in OFFICIAL_EVENTS]
 
 
 def test_official_generator_creates_draft_without_api_key():
@@ -54,7 +62,7 @@ def test_seoul_collector_discovers_and_parses_official_event():
     <dt>요금</dt><dd>무료</dd></dl>
     """
     collector = SeoulFestivalCollector(fetch=lambda url: main if url.endswith("festivalMain.do") else detail)
-    posts = collector.collect([], 3, today=date(2026, 9, 1))
+    posts = collector.collect(OFFICIAL_EVENT_KEYS, 3, today=date(2026, 9, 1))
     assert len(posts) == 1
     assert posts[0]["topic_key"] == "seoul-festival-901"
     assert posts[0]["title"].startswith("2026 서울 생활체육축제")
@@ -76,7 +84,9 @@ def test_seoul_collector_discovers_and_parses_official_event():
 def test_seoul_collector_skips_duplicate_and_finished_event():
     main = '<a href="festivalView.do?festacode=901">행사</a>'
     collector = SeoulFestivalCollector(fetch=lambda _url: main)
-    assert collector.collect(["seoul-festival-901"], 3, today=date(2026, 9, 1)) == []
+    assert collector.collect(
+        ["seoul-festival-901", *OFFICIAL_EVENT_KEYS], 3, today=date(2026, 9, 1)
+    ) == []
 
 
 def test_seoul_collector_filters_requested_category():
@@ -88,8 +98,12 @@ def test_seoul_collector_filters_requested_category():
     <dt>장소</dt><dd>서울광장</dd></dl>
     """
     collector = SeoulFestivalCollector(fetch=lambda url: main if "festivalMain" in url else detail)
-    assert len(collector.collect([], 1, today=date(2026, 9, 1), category="러닝")) == 1
-    assert collector.collect([], 1, today=date(2026, 9, 1), category="자전거") == []
+    assert len(
+        collector.collect(OFFICIAL_EVENT_KEYS, 1, today=date(2026, 9, 1), category="러닝")
+    ) == 1
+    assert collector.collect(
+        OFFICIAL_EVENT_KEYS, 1, today=date(2026, 9, 1), category="자전거"
+    ) == []
 
 
 def test_seoul_collector_uses_official_category_fallback():

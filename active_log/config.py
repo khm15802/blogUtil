@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, model_validator
+from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,6 +22,14 @@ class Settings(BaseSettings):
     database_path: Path = Path("data/active_log.db")
     host: str = "127.0.0.1"
     port: int = Field(default=8000, ge=1, le=65535)
+
+    instagram_access_token: SecretStr = SecretStr("")
+    instagram_user_id: str = Field(default="", pattern=r"^\d*$")
+    instagram_api_version: str = Field(default="v25.0", pattern=r"^v\d+\.\d+$")
+    instagram_auto_publish: bool = False
+    instagram_media_dir: Path = Path("output/instagram-public")
+    instagram_media_base_url: str = ""
+    cloudflared_path: Path | None = None
 
     @model_validator(mode="after")
     def validate_interval(self) -> "Settings":

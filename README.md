@@ -181,3 +181,49 @@ AUTO_PUBLISH=false
 3. 선택자가 정상 동작하면 `AUTO_PUBLISH=true`
 4. 비공개 글을 일정 기간 검수
 5. 별도 승인 후에만 공개 게시 기능 개발
+
+## 인스타그램 자동 게시
+
+크리에이터 또는 비즈니스 계정에서 공식 **Instagram API with Instagram Login**을 사용합니다. 페이스북 페이지 연결은 필요하지 않습니다. 개인 계정은 먼저 프로페셔널 계정으로 전환하세요. 비밀번호나 토큰을 채팅에 보내지 마세요.
+
+1. Meta 개발자 앱을 만들고 Instagram Login API를 설정합니다. 본인 계정을 앱의 테스트 계정으로 추가하고 필요한 초대를 수락하세요. 앱 역할 밖의 계정을 연결하려면 Meta의 앱 검수·권한 승인 요건을 확인해야 합니다.
+2. `instagram_business_basic`, `instagram_business_content_publish` 권한을 가진 해당 계정의 토큰을 발급합니다. `instagram-connect --browser`로 Meta 로그인을 시작하고 계정을 `.env`에 연결할 수 있습니다. 선택적으로 `INSTAGRAM_USER_ID`를 지정하면 다른 계정 토큰의 사용을 차단합니다. 토큰 자동 갱신은 지원하지 않으므로 만료 시 다시 연결하고 앱을 다시 시작하세요.
+3. `INSTAGRAM_MEDIA_BASE_URL`은 기본으로 비워 둡니다. 이때 게시할 때마다 프로그램이 Cloudflare Quick Tunnel을 잠깐 열고, 임의 경로의 카드 JPEG만 외부에서 읽을 수 있게 제공합니다. 공식 GitHub 릴리스에서 `cloudflared`를 내려받을 때 SHA-256을 확인하고 로컬 `data/tools/`에 보관합니다. 캐러셀 처리가 끝나면 서버와 터널을 자동으로 닫습니다. Quick Tunnel은 테스트·개발용이며 가동 시간 보장이 없습니다. 안정적인 호스팅을 이미 운영한다면 `INSTAGRAM_MEDIA_DIR`를 `INSTAGRAM_MEDIA_BASE_URL` 아래에서 제공하고 주소를 설정해 Quick Tunnel을 건너뛸 수 있습니다. 관리 웹 전체를 공개하지 않습니다.
+4. 앱을 다시 시작하고 **채널 연결 → 인스타그램 → 연결 확인**을 누릅니다. 이 동작은 계정 정보만 읽으며, 게시 권한과 이미지 호스팅의 정상 동작까지 보장하지는 않습니다.
+5. 글 관리에서 로컬 본문이 있는 글을 선택하고 **인스타그램에 게시**를 누르면 기존 정보·공식 포스터로 카드 6장을 생성하고 설명문과 함께 실제 공개 게시합니다. PNG 원본은 유지하고 API용 JPEG를 별도로 만듭니다.
+6. Windows에서 실행하려면 PowerShell에서 `.\.venv\Scripts\active-log.exe instagram-connect --browser`로 그 PC의 계정을 연결합니다. 로컬 HTTPS 인증서 생성에 OpenSSL이 필요합니다(Git for Windows를 기본 경로에 설치한 경우 자동으로 찾습니다). 토큰은 Git에 포함하지 않고 각 PC의 `.env`에 따로 보관합니다. 그런 다음 `.env`에 `INSTAGRAM_AUTO_PUBLISH=true`를 설정하세요. Windows 작업 스케줄러의 `daily-publish`와 데스크톱·웹의 티스토리 공개 게시 성공 뒤 카드 6장을 인스타그램에 이어서 게시합니다. 기존 게시글을 일괄 게시하거나 독립적인 인스타그램 예약을 생성하지 않습니다. 인스타그램 실패 시 티스토리 공개 게시 상태는 유지하고 결과를 기록합니다.
+
+macOS CLI 예시(Windows는 `.venv\Scripts\active-log.exe`):
+
+```sh
+.venv/bin/active-log instagram-check
+.venv/bin/active-log instagram-status
+# 실제 공개 게시: 로컬 글 ID 사용
+.venv/bin/active-log instagram-publish 47
+```
+
+같은 글·계정의 중복 게시를 DB에서 차단합니다. 준비 단계 실패(`failed`)는 재시도할 수 있습니다. 게시 요청 뒤 응답이 유실된 `unknown`과 실행 중 종료된 `preparing`/`publishing`은 자동 재시도하지 않습니다. `instagram-status`와 실제 인스타그램 피드를 비교해 확인하세요. 컨테이너가 남은 작업은 `instagram-reconcile <로컬 글 ID>`로 Meta의 상태를 조회할 수 있습니다. 게시 완료는 중복 차단을 유지하고, `ERROR`/`EXPIRED`일 때만 재시도를 허용합니다. 그 외 결과는 운영자가 추가 확인해야 합니다.
+
+공개 카드 폴더에는 임의 경로가 사용되지만 해당 주소를 아는 사람은 이미지를 볼 수 있습니다. 접근 토큰·DB·`.env`를 정적 호스팅에 넣지 마세요. 공개 카드 파일은 자동 삭제하지 않으므로 Meta 이미지 수집과 게시 완료를 확인한 뒤 보관 정책에 따라 정리하세요. 백업·DB를 바꾸면 중복 방지 기록도 함께 보존해야 합니다.
+
+공식 참고: [Instagram Login API](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login), [콘텐츠 게시](https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/content-publishing), [Meta 공식 Postman](https://www.postman.com/meta/instagram/documentation/6yqw8pt/instagram-api).
+
+### 메타 토큰 생성 팝업이 빈 화면으로 끝날 때
+
+인증 후 `developers.facebook.com/instagram/token_generator/oauth/?code=...&state=...`의 빈 페이지가 남으면 공식 인증 코드를 직접 교환할 수 있습니다. 이 주소의 인증 코드는 1시간 유효하고 한 번만 사용할 수 있습니다. 이미 메타에서 사용한 코드이거나 만료된 경우 새 승인이 필요합니다. 빈 화면 자체만으로 메타 서비스 장애라고 단정하지 않습니다.
+
+```sh
+.venv/bin/active-log instagram-connect
+```
+
+터미널의 두 숨김 입력창에 (1) 빈 반환 화면의 전체 주소, (2) 메타 앱의 **Instagram 로그인이 포함된 API 설정 → Instagram 앱 시크릿 코드 → 표시** 값을 입력하세요. Facebook 앱의 시크릿과 혼동하지 마세요. 비밀번호·시크릿·반환 주소를 채팅으로 보내지 마세요. 명령은 공식 Meta/Instagram 서버에서 단기 토큰을 장기 토큰으로 교환하고, 프로필 조회·게시 권한 및 대상 계정을 검증한 뒤 `.env`에 토큰·계정 ID·만료일을 저장합니다. 앱 시크릿과 인증 코드는 저장하지 않습니다. 토큰은 화면에 출력하지 않습니다. 다른 기존 환경 설정은 보존합니다.
+
+연결 후 앱을 다시 시작하고 `instagram-check`로 확인하세요. `INSTAGRAM_MEDIA_BASE_URL`을 비워 둔 경우 게시 시 임시 HTTPS 이미지 전달을 자동으로 준비합니다. 이 PC에서 GitHub 다운로드와 Cloudflare Quick Tunnel 접속이 허용되어야 합니다. `cloudflared` 실행 파일 경로를 직접 지정하려면 `.env`의 `CLOUDFLARED_PATH`에 경로를 입력하세요. Quick Tunnel은 [Cloudflare의 테스트·개발용 임시 터널](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/)입니다.
+
+공식 절차: [Instagram 비즈니스 로그인 — 코드를 토큰으로 교환](https://developers.facebook.com/documentation/instagram-platform/instagram-api-with-instagram-login/business-login).
+
+### 붙여넣기 없이 브라우저로 연결
+
+`.venv/bin/active-log instagram-connect --browser`는 이 컴퓨터의 `https://localhost:8766`에서 10분간 연결 화면을 제공합니다. Meta 앱의 Instagram 비즈니스 로그인 리디렉션 URI를 `https://localhost:8766/instagram/callback`으로 설정해야 합니다. 최초 접속의 임시 자체 서명 인증서 경고는 운영자가 직접 확인해야 합니다. 시스템 인증서 신뢰 설정은 변경하지 않습니다.
+
+로컬 화면에 기존 메타 반환 주소와 Instagram 앱 시크릿을 입력하고 **로그인으로 연결**을 선택하면 프로필 조회·게시 권한만 요청합니다. 이번 승인의 새 코드는 메타의 토큰 생성 팝업을 거치지 않고 로컬 서버로 직접 돌아옵니다. 기존 반환 주소는 앱·대상 계정 식별에만 사용하며 해당 코드가 이미 사용됐어도 새 인증으로 연결할 수 있습니다. 시크릿은 서버 메모리에서만 사용하고 콜백 처리 후 폐기합니다. 로컬 HTTPS 인증서·키는 output/instagram-local-tls에 보관하며 만료 전까지 재사용합니다. OAuth 응답의 앱 범위 ID가 테스터 ID와 달라도 실제 사용자 이름이 active_log.daily인지 /me 조회로 확인하고 검증된 계정 ID를 저장합니다. 연결 성공 후 서버는 자동 종료됩니다. 다른 사이트의 요청·예측할 수 없는 경로와 일치하지 않는 요청·state 불일치를 차단하고 HTTP 접근 로그를 남기지 않습니다.

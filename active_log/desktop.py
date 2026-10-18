@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 from .config import settings
 from .db import Database
 from .official_generator import CATEGORIES
+from .instagram_cards import generate_instagram_cards
 from .publisher import TistoryPublisher
 from .service import AutomationService
 from .quality import inspect_post
@@ -133,6 +134,10 @@ class PublishWorker(QThread):
     def run(self) -> None:
         try:
             url = asyncio.run(self.service.publish_public(self.post_id))
+            if self.service.config.instagram_auto_publish:
+                result = self.service.db.get_state("last_instagram_result")
+                if result and result.startswith(f"글 {self.post_id} "):
+                    url = f"{url}\n\n{result}"
             self.succeeded.emit(url)
         except Exception as exc:
             self.failed.emit(str(exc))
@@ -196,6 +201,27 @@ class TistoryDeleteWorker(QThread):
             self.failed.emit(str(exc))
 
 
+class InstagramWorker(QThread):
+    succeeded = Signal(str)
+    failed = Signal(str)
+
+    def __init__(self, service, post_id=None):
+        super().__init__()
+        self.service, self.post_id = service, post_id
+
+    def run(self):
+        from .instagram import InstagramClient
+        try:
+            if self.post_id is None:
+                account = InstagramClient(self.service.config).account()
+                result = f"연결됨: @{account['username']}"
+            else:
+                result = asyncio.run(self.service.publish_instagram(self.post_id))
+            self.succeeded.emit(result)
+        except Exception as exc:
+            self.failed.emit(str(exc))
+
+
 class DesktopWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -204,6 +230,7 @@ class DesktopWindow(QMainWindow):
         self.current_id: int | None = None
         self.current_remote_post: dict | None = None
         self.remote_posts: list[dict] = []
+        self.instagram_worker: InstagramWorker | None = None
         self.worker: PublishWorker | None = None
         self.generation_worker: GenerateWorker | None = None
         self.tistory_posts_worker: TistoryPostsWorker | None = None
@@ -397,7 +424,14 @@ class DesktopWindow(QMainWindow):
         self.edit_toggle_button.clicked.connect(self.toggle_editor_panel)
         self.preview_primary_button = QPushButton("게시")
         self.preview_primary_button.clicked.connect(self.perform_preview_action)
+        self.instagram_cards_button = QPushButton("인스타 카드 만들기")
+        self.instagram_cards_button.setProperty("secondary", True)
+        self.instagram_cards_button.clicked.connect(self.create_instagram_cards)
         preview_header.addWidget(self.edit_toggle_button)
+        preview_header.addWidget(self.instagram_cards_button)
+        self.instagram_publish_button = QPushButton("인스타그램에 게시")
+        self.instagram_publish_button.clicked.connect(self.publish_to_instagram)
+        preview_header.addWidget(self.instagram_publish_button)
         preview_header.addWidget(self.preview_primary_button)
         desktop = QPushButton("PC")
         mobile = QPushButton("모바일")
@@ -553,7 +587,7 @@ class DesktopWindow(QMainWindow):
         for name, state, enabled, handler in (
             ("티스토리", "Chrome 로그인 세션 사용", True, self.login),
             ("네이버 블로그", "연결 기능 준비 중", False, None),
-            ("인스타그램", "연결 기능 준비 중", False, None),
+            ("인스타그램", "크리에이터·비즈니스 계정 / 공식 API", True, self.check_instagram),
         ):
             row = QFrame()
             row.setObjectName("summaryCard")
@@ -568,6 +602,16 @@ class DesktopWindow(QMainWindow):
             row_layout.addWidget(text, 1)
             row_layout.addWidget(button)
             layout.addWidget(row)
+        self.instagram_status = QLabel("인스타그램: 연결 확인 전")
+        self.instagram_status.setWordWrap(True)
+        layout.addWidget(self.instagram_status)
+        instagram_help = QLabel(
+            "인스타그램 연결은 로컬 .env의 접근 토큰을 사용합니다. "
+            "설정 방법은 README의 인스타그램 자동 게시 안내를 확인하세요. "
+            "티스토리 게시 후 자동 연동은 INSTAGRAM_AUTO_PUBLISH=true로 켭니다."
+        )
+        instagram_help.setWordWrap(True)
+        layout.addWidget(instagram_help)
         notice = QLabel("비밀번호는 앱 데이터베이스에 저장하지 않습니다. 각 서비스의 안전한 로그인 세션을 사용합니다.")
         notice.setWordWrap(True)
         notice.setObjectName("mutedText")
@@ -799,6 +843,77 @@ class DesktopWindow(QMainWindow):
             self.retry_failed_publish()
         elif status in {"private", "public"}:
             self.open_published()
+
+    def check_instagram(self) -> None:
+        if self.instagram_worker and self.instagram_worker.isRunning():
+            return
+        self.instagram_status.setText("인스타그램 계정 확인 중…")
+        self.instagram_worker = InstagramWorker(self.service)
+        self.instagram_worker.succeeded.connect(self.instagram_status.setText)
+        self.instagram_worker.failed.connect(self.instagram_status.setText)
+        self.instagram_worker.start()
+
+    def publish_to_instagram(self) -> None:
+        if self.instagram_worker and self.instagram_worker.isRunning():
+            return
+        post = self.db.get_post(self.current_id) if self.current_id else None
+        if post is None and self.current_remote_post:
+            post = next((row for row in self.db.list_posts(500)
+                         if row.get("tistory_url") == self.current_remote_post.get("url")), None)
+        if not post:
+            QMessageBox.information(self, "인스타그램 게시", "로컬에 본문이 저장된 글을 먼저 선택하세요.")
+            return
+        self.instagram_publish_button.setEnabled(False)
+        self.instagram_worker = InstagramWorker(self.service, int(post["id"]))
+        self.instagram_worker.succeeded.connect(self.instagram_publish_succeeded)
+        self.instagram_worker.failed.connect(self.instagram_publish_failed)
+        self.instagram_worker.start()
+
+    def instagram_publish_succeeded(self, result: str) -> None:
+        self.instagram_publish_button.setEnabled(True)
+        QMessageBox.information(self, "인스타그램 게시 완료", result)
+
+    def instagram_publish_failed(self, error: str) -> None:
+        self.instagram_publish_button.setEnabled(True)
+        QMessageBox.warning(self, "인스타그램 게시 실패", error)
+
+    def create_instagram_cards(self) -> None:
+        post = self.db.get_post(self.current_id) if self.current_id else None
+        if post is None and self.current_remote_post:
+            post = next(
+                (
+                    candidate
+                    for candidate in self.db.list_posts(500)
+                    if candidate["title"] == self.current_remote_post.get("title")
+                ),
+                None,
+            )
+        if post is None:
+            QMessageBox.information(
+                self,
+                "카드뉴스 만들기",
+                "로컬에 본문이 저장된 글을 먼저 선택하세요.",
+            )
+            return
+        topic_key = str(post["topic_key"])
+        output_dir = PROJECT_ROOT / "output" / "instagram" / topic_key
+        images = self.service.find_images(topic_key)
+        try:
+            paths = generate_instagram_cards(
+                post,
+                output_dir,
+                images[0] if images else None,
+            )
+        except Exception as exc:
+            QMessageBox.warning(self, "카드뉴스 생성 실패", str(exc))
+            return
+        QDesktopServices.openUrl(QUrl.fromLocalFile(str(output_dir)))
+        self.statusBar().showMessage(f"인스타 카드 {len(paths)}장을 만들었습니다.", 8000)
+        QMessageBox.information(
+            self,
+            "인스타 카드 완료",
+            f"1080×1350 PNG {len(paths)}장을 만들었습니다.\n{output_dir}",
+        )
 
     def refresh_posts(self, select_id: int | None = None) -> None:
         oldest_first = bool(self.order_filter.currentData()) if hasattr(self, "order_filter") else False

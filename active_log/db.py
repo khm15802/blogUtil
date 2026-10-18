@@ -22,6 +22,15 @@ CREATE TABLE IF NOT EXISTS posts (
     created_at TEXT NOT NULL,
     published_at TEXT
 );
+CREATE TABLE IF NOT EXISTS instagram_publications (
+    post_id INTEGER NOT NULL,
+    account_id TEXT NOT NULL,
+    status TEXT NOT NULL,
+    container_id TEXT,
+    media_id TEXT,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (post_id, account_id)
+);
 CREATE TABLE IF NOT EXISTS runtime_state (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
@@ -216,4 +225,34 @@ class Database:
                 ORDER BY current.views DESC, current.id DESC LIMIT ?""",
                 (limit,),
             ).fetchall()
+        return [dict(row) for row in rows]
+
+    def claim_instagram(self, post_id: int, account_id: str) -> None:
+        with self.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            row = connection.execute(
+                "SELECT status FROM instagram_publications WHERE post_id=? AND account_id=?",
+                (post_id, account_id),
+            ).fetchone()
+            if row and row["status"] != "failed":
+                raise RuntimeError(f"이미 게시됐거나 결과 확인이 필요한 글입니다: {row['status']}")
+            connection.execute(
+                """INSERT INTO instagram_publications(post_id,account_id,status,updated_at)
+                VALUES(?,?,'preparing',?) ON CONFLICT(post_id,account_id)
+                DO UPDATE SET status='preparing',container_id=NULL,media_id=NULL,updated_at=excluded.updated_at""",
+                (post_id, account_id, datetime.now().isoformat()),
+            )
+
+    def update_instagram(self, post_id: int, account_id: str, status: str,
+                         *, container_id: str | None = None, media_id: str | None = None) -> None:
+        with self.connect() as connection:
+            connection.execute(
+                """UPDATE instagram_publications SET status=?,container_id=COALESCE(?,container_id),
+                media_id=COALESCE(?,media_id),updated_at=? WHERE post_id=? AND account_id=?""",
+                (status, container_id, media_id, datetime.now().isoformat(), post_id, account_id),
+            )
+
+    def list_instagram_publications(self) -> list[dict]:
+        with self.connect() as connection:
+            rows = connection.execute("SELECT * FROM instagram_publications ORDER BY updated_at DESC").fetchall()
         return [dict(row) for row in rows]

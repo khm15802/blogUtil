@@ -31,7 +31,53 @@ def run() -> None:
     subparsers.add_parser("publish-next", help="검토를 마친 대기열의 첫 글을 티스토리에 공개 등록")
     stats_parser = subparsers.add_parser("sync-stats", help="공개 글 조회수를 기록")
     stats_parser.add_argument("--limit", type=int, default=50, choices=range(1, 201), metavar="1-200")
+    subparsers.add_parser("instagram-check", help="환경 설정의 인스타그램 계정 연결 확인")
+    instagram_parser = subparsers.add_parser("instagram-publish", help="선택 글의 카드 6장을 인스타그램에 공개 게시")
+    instagram_parser.add_argument("post_id", type=int)
+    subparsers.add_parser("instagram-status", help="인스타그램 게시 이력 확인")
+    reconcile_parser = subparsers.add_parser("instagram-reconcile", help="불확실한 게시 결과를 Meta에서 조회해 복구")
+    reconcile_parser.add_argument("post_id", type=int)
+    connect_parser = subparsers.add_parser("instagram-connect", help="메타 반환 주소와 앱 시크릿으로 토큰을 안전하게 연결")
+    connect_parser.add_argument("--browser", action="store_true", help="터미널 입력 대신 로컬 브라우저 연결 화면 실행")
     args = parser.parse_args()
+
+    if args.command == "instagram-connect":
+        if args.browser:
+            from .instagram_auth import serve_connection
+            serve_connection()
+            return
+        from getpass import getpass
+        from .instagram_auth import connect_from_callback, parse_callback
+        from .instagram import InstagramError
+        print("빈 메타 반환 화면의 주소 전체와 Instagram 앱 시크릿을 준비하세요. 입력값은 화면에 표시되지 않습니다.")
+        callback_url = getpass("메타 반환 주소 전체: ")
+        try:
+            parse_callback(callback_url)
+            app_secret = getpass("Instagram 앱 시크릿: ")
+            print(connect_from_callback(callback_url, app_secret))
+        except InstagramError as exc:
+            print(str(exc))
+            raise SystemExit(1) from None
+        return
+
+    if args.command == "instagram-reconcile":
+        from .instagram import InstagramPublisher
+        print(InstagramPublisher(settings, Database(settings.database_path)).reconcile(args.post_id))
+        return
+
+    if args.command == "instagram-check":
+        from .instagram import InstagramClient
+        account = InstagramClient(settings).account()
+        print(f"인스타그램 연결 확인: @{account['username']} (ID: {account['id']})")
+        return
+    if args.command == "instagram-status":
+        for row in Database(settings.database_path).list_instagram_publications():
+            print(f"글 {row['post_id']} / 계정 {row['account_id']} / {row['status']} / 미디어 {row['media_id'] or '—'}")
+        return
+    if args.command == "instagram-publish":
+        db = Database(settings.database_path)
+        print(asyncio.run(AutomationService(settings, db).publish_instagram(args.post_id)))
+        return
 
     if args.command == "login":
         publisher = TistoryPublisher(settings.blog_name, settings.tistory_profile_dir, headless=False)
@@ -74,14 +120,20 @@ def run() -> None:
                 post_ids.extend(created)
         log(f"공식 행사 글 {len(post_ids)}개 수집: {post_ids or '없음'}")
         failures = 0
+        instagram_failures = 0
         for post_id in post_ids:
             try:
                 url = asyncio.run(service.publish_public(post_id))
                 log(f"글 {post_id} 공개 게시 완료: {url}")
+                if settings.instagram_auto_publish:
+                    instagram_result = db.get_state("last_instagram_result") or f"글 {post_id} 인스타그램 결과 없음"
+                    log(instagram_result)
+                    if "인스타그램 게시 실패:" in instagram_result:
+                        instagram_failures += 1
             except Exception as exc:
                 failures += 1
                 log(f"글 {post_id} 공개 게시 실패: {exc}")
-        if failures:
+        if failures or instagram_failures:
             raise SystemExit(1)
         return
     if args.command == "publish-next":
