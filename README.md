@@ -193,6 +193,30 @@ AUTO_PUBLISH=false
 5. 글 관리에서 로컬 본문이 있는 글을 선택하고 **인스타그램에 게시**를 누르면 기존 정보·공식 포스터로 카드 6장을 생성하고 설명문과 함께 실제 공개 게시합니다. PNG 원본은 유지하고 API용 JPEG를 별도로 만듭니다.
 6. Windows에서 실행하려면 PowerShell에서 `.\.venv\Scripts\active-log.exe instagram-connect --browser`로 그 PC의 계정을 연결합니다. 로컬 HTTPS 인증서 생성에 OpenSSL이 필요합니다(Git for Windows를 기본 경로에 설치한 경우 자동으로 찾습니다). 토큰은 Git에 포함하지 않고 각 PC의 `.env`에 따로 보관합니다. 그런 다음 `.env`에 `INSTAGRAM_AUTO_PUBLISH=true`를 설정하세요. Windows 작업 스케줄러의 `daily-publish`와 데스크톱·웹의 티스토리 공개 게시 성공 뒤 카드 6장을 인스타그램에 이어서 게시합니다. 기존 게시글을 일괄 게시하거나 독립적인 인스타그램 예약을 생성하지 않습니다. 인스타그램 실패 시 티스토리 공개 게시 상태는 유지하고 결과를 기록합니다.
 
+### Windows PC 설정
+
+프로젝트 폴더에서 PowerShell을 열고 최신 코드를 받은 뒤 설치를 갱신합니다. 설치 스크립트는 기존 `.env`를 덮어쓰지 않습니다.
+
+```powershell
+git pull origin main
+.\install-windows.ps1
+```
+
+그 Windows PC에서 Instagram 계정을 한 번 연결하고 연결 상태를 확인합니다. 브라우저에서 사용할 Instagram 프로페셔널 계정으로 로그인하세요. 인증을 마치면 토큰이 해당 PC의 프로젝트 `.env`에만 저장됩니다.
+
+```powershell
+.\.venv\Scripts\active-log.exe instagram-connect --browser
+.\.venv\Scripts\active-log.exe instagram-check
+```
+
+메모장으로 프로젝트의 `.env`를 열어 `INSTAGRAM_AUTO_PUBLISH=true`로 바꾼 뒤 저장합니다. 앱이나 예약 작업이 이미 실행 중이면 다시 시작해야 설정이 적용됩니다.
+
+```powershell
+notepad .env
+```
+
+이후부터 새 글의 티스토리 공개 게시가 성공하면 카드 6장을 Instagram에 이어서 게시합니다. 기존 공개 글은 자동으로 소급 게시되지 않습니다. Windows에서도 토큰을 Git에 올리거나 다른 사람에게 보내지 마세요. 토큰이 만료되면 같은 PC에서 `instagram-connect --browser`를 다시 실행합니다.
+
 macOS CLI 예시(Windows는 `.venv\Scripts\active-log.exe`):
 
 ```sh

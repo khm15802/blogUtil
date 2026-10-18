@@ -30,7 +30,7 @@
 
 ## 다음에 결정할 일
 
-- [ ] Windows에서 `origin/main`의 `86c31c8` 변경을 받는다. 해당 PC에서 `instagram-connect --browser`로 Instagram 계정을 연결하고 `.env`의 `INSTAGRAM_AUTO_PUBLISH=true`를 설정한 뒤 첫 티스토리 공개 게시와 Instagram 연동 결과를 확인한다. Instagram 토큰은 PC별 로컬 `.env`에만 저장하며 자동 갱신은 미지원.
+- [ ] Windows에서 최신 `origin/main`을 받고 README의 **Windows PC 설정**을 따른다. 해당 PC에서 계정을 연결하고 `.env`의 `INSTAGRAM_AUTO_PUBLISH=true`를 설정한 뒤 첫 티스토리 공개 게시와 Instagram 연동 결과를 확인한다. Instagram 토큰은 PC별 로컬 `.env`에만 저장하며 자동 갱신은 미지원.
 
 - [ ] 일일 게시 시작·수집 단계 로그 보강 및 콘솔 종료 영향 검토. 9월 9일 게시 실패 원인인 러닝/캠핑·레저 카테고리 조회도 별도 점검.
 
@@ -39,6 +39,8 @@
 - [ ] 자동 게시 정책 확정: 비공개 자동 등록을 유지할지, 검토 후 공개 게시만 지원할지 결정
 - [ ] `PUBLISH_VISIBILITY` 기본값과 `scheduled_cycle()`의 `publish_private()` 호출 불일치 정리
 - [ ] README의 현재 기능·설정 설명을 실제 코드와 대조해 갱신
+
+- [x] 2026-10-18: README에 Windows용 Git 업데이트, 설치 갱신, 로컬 Instagram 연결·검증, 자동 게시 켜기 절차를 추가. 토큰은 GitHub에 올리지 않고 각 PC `.env`에 보관함을 명시.
 
 ## 최근 완료
 
